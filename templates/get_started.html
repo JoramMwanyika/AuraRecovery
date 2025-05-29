@@ -1,0 +1,781 @@
+{% extends "base.html" %}
+
+{% block title %}Get Started - AuraRecovery{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-aura-gray dark:bg-gray-900 transition-colors duration-300">
+    <!-- Header -->
+    <header class="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl shadow-sm border-b border-gray-200/20 dark:border-gray-700/20">
+        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <a href="{{ url_for('index') }}" class="flex items-center space-x-3">
+                <i data-lucide="arrow-left" class="w-5 h-5 text-gray-600 dark:text-gray-300"></i>
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 bg-aura-blue rounded-lg flex items-center justify-center shadow-lg">
+                        <i data-lucide="heart" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <span class="text-xl font-bold text-aura-charcoal dark:text-white">AuraRecovery</span>
+                </div>
+            </a>
+
+            <div class="flex items-center space-x-4">
+                <button onclick="toggleDarkMode()" class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center">
+                    <i data-lucide="sun" class="w-5 h-5 text-yellow-500 hidden dark:block"></i>
+                    <i data-lucide="moon" class="w-5 h-5 text-gray-600 block dark:hidden"></i>
+                </button>
+                <a href="{{ url_for('login') }}" class="border border-aura-blue text-aura-blue hover:bg-aura-blue/10 px-4 py-2 rounded-lg transition-colors">
+                    Sign In
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-4 py-8">
+        <div class="max-w-4xl mx-auto">
+            <!-- Progress Header -->
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-aura-charcoal dark:text-white mb-2">Start Your Recovery Journey</h1>
+                <p class="text-gray-600 dark:text-gray-300">
+                    Join thousands who have found hope and healing with AuraRecovery
+                </p>
+            </div>
+
+            <!-- Progress Steps -->
+            <div class="mb-8">
+                <div class="flex items-center justify-between max-w-2xl mx-auto">
+                    <div class="flex items-center">
+                        <div class="flex flex-col items-center">
+                            <div id="step-1" class="w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all duration-300 bg-aura-blue border-aura-blue text-white">
+                                <i data-lucide="user" class="w-5 h-5"></i>
+                            </div>
+                            <span class="text-xs mt-2 font-medium text-aura-blue">Personal Info</span>
+                        </div>
+                        <div id="line-1" class="w-16 h-0.5 mx-4 transition-all duration-300 bg-gray-300 dark:bg-gray-600"></div>
+                    </div>
+                    
+                    <div class="flex items-center">
+                        <div class="flex flex-col items-center">
+                            <div id="step-2" class="w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all duration-300 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-400">
+                                <i data-lucide="shield" class="w-5 h-5"></i>
+                            </div>
+                            <span class="text-xs mt-2 font-medium text-gray-400">Account Setup</span>
+                        </div>
+                        <div id="line-2" class="w-16 h-0.5 mx-4 transition-all duration-300 bg-gray-300 dark:bg-gray-600"></div>
+                    </div>
+                    
+                    <div class="flex items-center">
+                        <div class="flex flex-col items-center">
+                            <div id="step-3" class="w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all duration-300 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-400">
+                                <i data-lucide="globe" class="w-5 h-5"></i>
+                            </div>
+                            <span class="text-xs mt-2 font-medium text-gray-400">Preferences</span>
+                        </div>
+                        <div id="line-3" class="w-16 h-0.5 mx-4 transition-all duration-300 bg-gray-300 dark:bg-gray-600"></div>
+                    </div>
+                    
+                    <div class="flex flex-col items-center">
+                        <div id="step-4" class="w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all duration-300 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-400">
+                            <i data-lucide="target" class="w-5 h-5"></i>
+                        </div>
+                        <span class="text-xs mt-2 font-medium text-gray-400">Recovery Goals</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Card -->
+            <div class="border border-gray-200 dark:border-gray-700 shadow-xl bg-white dark:bg-gray-800 max-w-2xl mx-auto rounded-lg">
+                <div class="p-6">
+                    <h2 id="step-title" class="text-2xl text-center text-aura-charcoal dark:text-white mb-6">Personal Info</h2>
+                    
+                    <form id="signupForm" class="space-y-6">
+                        <!-- Step 1: Personal Information -->
+                        <div id="step-1-content" class="space-y-4">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="space-y-2">
+                                    <label for="firstName" class="text-aura-charcoal dark:text-gray-200 font-medium">
+                                        First Name
+                                    </label>
+                                    <input
+                                        id="firstName"
+                                        name="firstName"
+                                        placeholder="Enter your first name"
+                                        required
+                                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:border-aura-blue focus:ring-2 focus:ring-aura-blue/20 bg-white dark:bg-gray-700 text-aura-charcoal dark:text-white transition-colors"
+                                    />
+                                </div>
+                                <div class="space-y-2">
+                                    <label for="lastName" class="text-aura-charcoal dark:text-gray-200 font-medium">
+                                        Last Name
+                                    </label>
+                                    <input
+                                        id="lastName"
+                                        name="lastName"
+                                        placeholder="Enter your last name"
+                                        required
+                                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:border-aura-blue focus:ring-2 focus:ring-aura-blue/20 bg-white dark:bg-gray-700 text-aura-charcoal dark:text-white transition-colors"
+                                    />
+                                </div>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label for="dateOfBirth" class="text-aura-charcoal dark:text-gray-200 font-medium">
+                                    Date of Birth
+                                </label>
+                                <div class="relative">
+                                    <i data-lucide="calendar" class="absolute left-3 top-3 h-4 w-4 text-gray-400"></i>
+                                    <input
+                                        id="dateOfBirth"
+                                        name="dateOfBirth"
+                                        type="date"
+                                        required
+                                        class="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:border-aura-blue focus:ring-2 focus:ring-aura-blue/20 bg-white dark:bg-gray-700 text-aura-charcoal dark:text-white transition-colors"
+                                    />
+                                </div>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="text-aura-charcoal dark:text-gray-200 font-medium">I am a:</label>
+                                <div class="grid grid-cols-3 gap-4">
+                                    <div class="flex items-center space-x-2">
+                                        <input
+                                            type="radio"
+                                            id="individual"
+                                            name="userType"
+                                            value="individual"
+                                            class="w-4 h-4 text-aura-blue border-gray-300 focus:ring-aura-blue"
+                                        />
+                                        <label for="individual" class="text-sm text-aura-charcoal dark:text-gray-200">
+                                            Individual
+                                        </label>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <input
+                                            type="radio"
+                                            id="caregiver"
+                                            name="userType"
+                                            value="caregiver"
+                                            class="w-4 h-4 text-aura-blue border-gray-300 focus:ring-aura-blue"
+                                        />
+                                        <label for="caregiver" class="text-sm text-aura-charcoal dark:text-gray-200">
+                                            Caregiver
+                                        </label>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <input
+                                            type="radio"
+                                            id="therapist"
+                                            name="userType"
+                                            value="therapist"
+                                            class="w-4 h-4 text-aura-blue border-gray-300 focus:ring-aura-blue"
+                                        />
+                                        <label for="therapist" class="text-sm text-aura-charcoal dark:text-gray-200">
+                                            Therapist
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Account Setup -->
+                        <div id="step-2-content" class="space-y-4 hidden">
+                            <div class="space-y-2">
+                                <label for="email" class="text-aura-charcoal dark:text-gray-200 font-medium">
+                                    Email Address
+                                </label>
+                                <div class="relative">
+                                    <i data-lucide="mail" class="absolute left-3 top-3 h-4 w-4 text-gray-400"></i>
+                                    <input
+                                        id="email"
+                                        name="email"
+                                        type="email"
+                                        placeholder="Enter your email"
+                                        required
+                                        class="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:border-aura-blue focus:ring-2 focus:ring-aura-blue/20 bg-white dark:bg-gray-700 text-aura-charcoal dark:text-white transition-colors"
+                                    />
+                                </div>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label for="password" class="text-aura-charcoal dark:text-gray-200 font-medium">
+                                    Password
+                                </label>
+                                <div class="relative">
+                                    <i data-lucide="lock" class="absolute left-3 top-3 h-4 w-4 text-gray-400"></i>
+                                    <input
+                                        id="password"
+                                        name="password"
+                                        type="password"
+                                        placeholder="Create a strong password"
+                                        required
+                                        class="w-full pl-10 pr-10 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:border-aura-blue focus:ring-2 focus:ring-aura-blue/20 bg-white dark:bg-gray-700 text-aura-charcoal dark:text-white transition-colors"
+                                    />
+                                    <button
+                                        type="button"
+                                        onclick="togglePasswordVisibility('password')"
+                                        class="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                                    >
+                                        <i data-lucide="eye" id="password-eye-icon" class="h-4 w-4"></i>
+                                        <i data-lucide="eye-off" id="password-eye-off-icon" class="h-4 w-4 hidden"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label for="confirmPassword" class="text-aura-charcoal dark:text-gray-200 font-medium">
+                                    Confirm Password
+                                </label>
+                                <div class="relative">
+                                    <i data-lucide="lock" class="absolute left-3 top-3 h-4 w-4 text-gray-400"></i>
+                                    <input
+                                        id="confirmPassword"
+                                        name="confirmPassword"
+                                        type="password"
+                                        placeholder="Confirm your password"
+                                        required
+                                        class="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:border-aura-blue focus:ring-2 focus:ring-aura-blue/20 bg-white dark:bg-gray-700 text-aura-charcoal dark:text-white transition-colors"
+                                    />
+                                </div>
+                            </div>
+
+                            <div class="bg-aura-green/10 dark:bg-aura-green/5 border border-aura-green/30 rounded-lg p-4">
+                                <div class="flex items-start space-x-3">
+                                    <i data-lucide="shield" class="w-5 h-5 text-aura-green mt-0.5"></i>
+                                    <div>
+                                        <h4 class="font-medium text-aura-charcoal dark:text-white">Your Privacy is Protected</h4>
+                                        <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                                            We use military-grade encryption to protect your data. Your information is never shared without your consent.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Preferences -->
+                        <div id="step-3-content" class="space-y-4 hidden">
+                            <div class="space-y-2">
+                                <label class="text-aura-charcoal dark:text-gray-200 font-medium">Country/Region</label>
+                                <div class="relative">
+                                    <i data-lucide="map-pin" class="absolute left-3 top-3 h-4 w-4 text-gray-400 z-10"></i>
+                                    <select name="country" required class="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:border-aura-blue bg-white dark:bg-gray-700 text-aura-charcoal dark:text-white">
+                                        <option value="">Select your country</option>
+                                        <option value="brazil">🇧🇷 Brazil</option>
+                                        <option value="nigeria">🇳🇬 Nigeria</option>
+                                        <option value="india">🇮🇳 India</option>
+                                        <option value="mexico">🇲🇽 Mexico</option>
+                                        <option value="philippines">🇵🇭 Philippines</option>
+                                        <option value="other">🌍 Other</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="text-aura-charcoal dark:text-gray-200 font-medium">Preferred Language</label>
+                                <div class="relative">
+                                    <i data-lucide="languages" class="absolute left-3 top-3 h-4 w-4 text-gray-400 z-10"></i>
+                                    <select name="language" required class="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:border-aura-blue bg-white dark:bg-gray-700 text-aura-charcoal dark:text-white">
+                                        <option value="">Select your language</option>
+                                        <option value="english">English</option>
+                                        <option value="spanish">Español</option>
+                                        <option value="portuguese">Português</option>
+                                        <option value="hindi">हिंदी</option>
+                                        <option value="arabic">العربية</option>
+                                        <option value="french">Français</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="bg-aura-blue/10 dark:bg-aura-blue/5 border border-aura-blue/30 rounded-lg p-4">
+                                <div class="flex items-start space-x-3">
+                                    <i data-lucide="globe" class="w-5 h-5 text-aura-blue mt-0.5"></i>
+                                    <div>
+                                        <h4 class="font-medium text-aura-charcoal dark:text-white">Culturally Sensitive Support</h4>
+                                        <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                                            Our AI understands cultural contexts and provides support that respects your background and values.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 4: Recovery Goals -->
+                        <div id="step-4-content" class="space-y-6 hidden">
+                            <div class="space-y-4">
+                                <label class="text-aura-charcoal dark:text-gray-200 text-lg font-medium">
+                                    What are your recovery goals? (Select all that apply)
+                                </label>
+                                <div class="grid grid-cols-1 gap-3">
+                                    <div class="flex items-center space-x-3">
+                                        <input
+                                            type="checkbox"
+                                            id="goal-sobriety"
+                                            name="recoveryGoals"
+                                            value="Maintain sobriety"
+                                            class="w-4 h-4 text-aura-blue border-gray-300 rounded focus:ring-aura-blue"
+                                        />
+                                        <label for="goal-sobriety" class="text-aura-charcoal dark:text-gray-200">
+                                            Maintain sobriety
+                                        </label>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <input
+                                            type="checkbox"
+                                            id="goal-habits"
+                                            name="recoveryGoals"
+                                            value="Build healthy habits"
+                                            class="w-4 h-4 text-aura-blue border-gray-300 rounded focus:ring-aura-blue"
+                                        />
+                                        <label for="goal-habits" class="text-aura-charcoal dark:text-gray-200">
+                                            Build healthy habits
+                                        </label>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <input
+                                            type="checkbox"
+                                            id="goal-mental"
+                                            name="recoveryGoals"
+                                            value="Improve mental health"
+                                            class="w-4 h-4 text-aura-blue border-gray-300 rounded focus:ring-aura-blue"
+                                        />
+                                        <label for="goal-mental" class="text-aura-charcoal dark:text-gray-200">
+                                            Improve mental health
+                                        </label>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <input
+                                            type="checkbox"
+                                            id="goal-relationships"
+                                            name="recoveryGoals"
+                                            value="Strengthen relationships"
+                                            class="w-4 h-4 text-aura-blue border-gray-300 rounded focus:ring-aura-blue"
+                                        />
+                                        <label for="goal-relationships" class="text-aura-charcoal dark:text-gray-200">
+                                            Strengthen relationships
+                                        </label>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <input
+                                            type="checkbox"
+                                            id="goal-support"
+                                            name="recoveryGoals"
+                                            value="Find peer support"
+                                            class="w-4 h-4 text-aura-blue border-gray-300 rounded focus:ring-aura-blue"
+                                        />
+                                        <label for="goal-support" class="text-aura-charcoal dark:text-gray-200">
+                                            Find peer support
+                                        </label>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <input
+                                            type="checkbox"
+                                            id="goal-professional"
+                                            name="recoveryGoals"
+                                            value="Access professional help"
+                                            class="w-4 h-4 text-aura-blue border-gray-300 rounded focus:ring-aura-blue"
+                                        />
+                                        <label for="goal-professional" class="text-aura-charcoal dark:text-gray-200">
+                                            Access professional help
+                                        </label>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <input
+                                            type="checkbox"
+                                            id="goal-coping"
+                                            name="recoveryGoals"
+                                            value="Learn coping strategies"
+                                            class="w-4 h-4 text-aura-blue border-gray-300 rounded focus:ring-aura-blue"
+                                        />
+                                        <label for="goal-coping" class="text-aura-charcoal dark:text-gray-200">
+                                            Learn coping strategies
+                                        </label>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <input
+                                            type="checkbox"
+                                            id="goal-tracking"
+                                            name="recoveryGoals"
+                                            value="Track progress"
+                                            class="w-4 h-4 text-aura-blue border-gray-300 rounded focus:ring-aura-blue"
+                                        />
+                                        <label for="goal-tracking" class="text-aura-charcoal dark:text-gray-200">
+                                            Track progress
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="space-y-4">
+                                <div class="flex items-center space-x-3">
+                                    <input
+                                        id="terms"
+                                        name="agreeToTerms"
+                                        type="checkbox"
+                                        required
+                                        class="w-4 h-4 text-aura-blue border-gray-300 rounded focus:ring-aura-blue"
+                                    />
+                                    <label for="terms" class="text-sm text-aura-charcoal dark:text-gray-200">
+                                        I agree to the 
+                                        <a href="/terms" class="text-aura-blue hover:underline">Terms of Service</a>
+                                    </label>
+                                </div>
+                                <div class="flex items-center space-x-3">
+                                    <input
+                                        id="privacy"
+                                        name="agreeToPrivacy"
+                                        type="checkbox"
+                                        required
+                                        class="w-4 h-4 text-aura-blue border-gray-300 rounded focus:ring-aura-blue"
+                                    />
+                                    <label for="privacy" class="text-sm text-aura-charcoal dark:text-gray-200">
+                                        I agree to the 
+                                        <a href="/privacy" class="text-aura-blue hover:underline">Privacy Policy</a>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="bg-aura-green/10 dark:bg-aura-green/5 border border-aura-green/30 rounded-lg p-4">
+                                <div class="flex items-start space-x-3">
+                                    <i data-lucide="brain" class="w-5 h-5 text-aura-green mt-0.5"></i>
+                                    <div>
+                                        <h4 class="font-medium text-aura-charcoal dark:text-white">Personalized AI Support</h4>
+                                        <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                                            Based on your goals, our AI will create a personalized recovery plan that adapts to your progress.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Navigation Buttons -->
+                        <div class="flex justify-between pt-6">
+                            <button
+                                type="button"
+                                id="prevBtn"
+                                onclick="changeStep(-1)"
+                                class="border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 px-6 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors hidden"
+                            >
+                                <i data-lucide="arrow-left" class="w-4 h-4 mr-2 inline"></i>
+                                Previous
+                            </button>
+
+                            <button
+                                type="button"
+                                id="nextBtn"
+                                onclick="changeStep(1)"
+                                class="bg-aura-blue hover:bg-aura-blue-dark text-white px-6 py-3 rounded-lg transition-colors ml-auto"
+                            >
+                                Next
+                                <i data-lucide="arrow-right" class="w-4 h-4 ml-2 inline"></i>
+                            </button>
+
+                            <button
+                                type="submit"
+                                id="submitBtn"
+                                class="bg-aura-green hover:bg-aura-green-dark text-aura-charcoal font-semibold px-6 py-3 rounded-lg transition-colors ml-auto hidden"
+                            >
+                                <i data-lucide="heart" class="w-4 h-4 mr-2 inline"></i>
+                                Start My Journey
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Trust Indicators -->
+            <div class="mt-8 text-center">
+                <div class="flex items-center justify-center space-x-8 text-sm text-gray-500 dark:text-gray-400">
+                    <div class="flex items-center space-x-2">
+                        <i data-lucide="shield" class="w-5 h-5 text-aura-green"></i>
+                        <span>End-to-End Encrypted</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <i data-lucide="users" class="w-5 h-5 text-aura-green"></i>
+                        <span>25,000+ Users Trust Us</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <i data-lucide="globe" class="w-5 h-5 text-aura-green"></i>
+                        <span>40+ Countries Served</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentStep = 1;
+    const totalSteps = 4;
+
+    function togglePasswordVisibility(inputId) {
+        const passwordInput = document.getElementById(inputId);
+        const eyeIcon = document.getElementById(inputId + '-eye-icon');
+        const eyeOffIcon = document.getElementById(inputId + '-eye-off-icon');
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            eyeIcon.classList.add('hidden');
+            eyeOffIcon.classList.remove('hidden');
+        } else {
+            passwordInput.type = 'password';
+            eyeIcon.classList.remove('hidden');
+            eyeOffIcon.classList.add('hidden');
+        }
+    }
+
+    function updateStepIndicators() {
+        for (let i = 1; i <= totalSteps; i++) {
+            const stepElement = document.getElementById(`step-${i}`);
+            const lineElement = document.getElementById(`line-${i}`);
+            
+            if (i <= currentStep) {
+                stepElement.className = 'w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all duration-300 bg-aura-blue border-aura-blue text-white';
+                stepElement.nextElementSibling.className = 'text-xs mt-2 font-medium text-aura-blue';
+                if (lineElement && i < currentStep) {
+                    lineElement.className = 'w-16 h-0.5 mx-4 transition-all duration-300 bg-aura-blue';
+                }
+            } else {
+                stepElement.className = 'w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all duration-300 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-400';
+                stepElement.nextElementSibling.className = 'text-xs mt-2 font-medium text-gray-400';
+                if (lineElement) {
+                    lineElement.className = 'w-16 h-0.5 mx-4 transition-all duration-300 bg-gray-300 dark:bg-gray-600';
+                }
+            }
+        }
+    }
+
+    function showStep(step) {
+        // Hide all steps
+        for (let i = 1; i <= totalSteps; i++) {
+            document.getElementById(`step-${i}-content`).classList.add('hidden');
+        }
+        
+        // Show current step
+        document.getElementById(`step-${step}-content`).classList.remove('hidden');
+        
+        // Update step title
+        const titles = ['Personal Info', 'Account Setup', 'Preferences', 'Recovery Goals'];
+        document.getElementById('step-title').textContent = titles[step - 1];
+        
+        // Update buttons
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const submitBtn = document.getElementById('submitBtn');
+        
+        if (step === 1) {
+            prevBtn.classList.add('hidden');
+        } else {
+            prevBtn.classList.remove('hidden');
+        }
+        
+        if (step === totalSteps) {
+            nextBtn.classList.add('hidden');
+            submitBtn.classList.remove('hidden');
+        } else {
+            nextBtn.classList.remove('hidden');
+            submitBtn.classList.add('hidden');
+        }
+        
+        updateStepIndicators();
+    }
+
+    // Add this function after the validateStep function
+    function validateEmail() {
+        const emailInput = document.getElementById('email');
+        const email = emailInput.value.trim();
+        
+        if (!email) return;
+        
+        // Simple client-side validation
+        const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailPattern.test(email)) {
+            emailInput.classList.add('border-red-500');
+            showFieldError(emailInput, 'Please enter a valid email address');
+            return;
+        }
+        
+        // Check with server if email exists
+        fetch('{{ url_for("check_email") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email: email })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (!data.valid) {
+                emailInput.classList.add('border-red-500');
+                showFieldError(emailInput, data.message);
+            } else {
+                emailInput.classList.remove('border-red-500');
+                emailInput.classList.add('border-green-500');
+                clearFieldError(emailInput);
+            }
+        });
+    }
+
+    function showFieldError(field, message) {
+        // Remove any existing error message
+        clearFieldError(field);
+        
+        // Create and add error message
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'text-red-500 text-sm mt-1';
+        errorDiv.textContent = message;
+        errorDiv.id = `${field.id}-error`;
+        field.parentNode.appendChild(errorDiv);
+    }
+
+    function clearFieldError(field) {
+        const existingError = document.getElementById(`${field.id}-error`);
+        if (existingError) {
+            existingError.remove();
+        }
+    }
+
+    // Update the validateStep function to include better password validation
+    
+    function validateStep(step) {
+        const stepContent = document.getElementById(`step-${step}-content`);
+        const requiredFields = stepContent.querySelectorAll('[required]');
+        
+        for (let field of requiredFields) {
+            if (!field.value.trim()) {
+                field.focus();
+                showFieldError(field, 'This field is required');
+                return false;
+            }
+        }
+        
+        // Additional validation for step 2 (password confirmation)
+        if (step === 2) {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (password !== confirmPassword) {
+                const confirmPasswordField = document.getElementById('confirmPassword');
+                confirmPasswordField.focus();
+                showFieldError(confirmPasswordField, 'Passwords do not match');
+                return false;
+            }
+            
+            if (password.length < 8) {
+                const passwordField = document.getElementById('password');
+                passwordField.focus();
+                showFieldError(passwordField, 'Password must be at least 8 characters long');
+                return false;
+            }
+            
+            // Check for password strength
+            const hasUpperCase = /[A-Z]/.test(password);
+            const hasLowerCase = /[a-z]/.test(password);
+            const hasNumbers = /\d/.test(password);
+            const hasSpecialChars = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+            
+            if (!(hasUpperCase && hasLowerCase && (hasNumbers || hasSpecialChars))) {
+                const passwordField = document.getElementById('password');
+                passwordField.focus();
+                showFieldError(passwordField, 'Password should include uppercase, lowercase, and numbers or special characters');
+                return false;
+            }
+        }
+        
+        return true;
+    }
+
+    function changeStep(direction) {
+        if (direction === 1 && !validateStep(currentStep)) {
+            return;
+        }
+        
+        const newStep = currentStep + direction;
+        
+        if (newStep >= 1 && newStep <= totalSteps) {
+            currentStep = newStep;
+            showStep(currentStep);
+        }
+    }
+
+    document.getElementById('signupForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        if (!validateStep(currentStep)) {
+            return;
+        }
+        
+        // Show loading state
+        const submitBtn = document.getElementById('submitBtn');
+        const originalBtnText = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 mr-2 inline animate-spin"></i> Creating Account...';
+        
+        const formData = new FormData(this);
+        const data = {};
+        
+        // Convert FormData to object
+        for (let [key, value] of formData.entries()) {
+            if (key === 'recoveryGoals') {
+                if (!data[key]) data[key] = [];
+                data[key].push(value);
+            } else {
+                data[key] = value;
+            }
+        }
+        
+        try {
+            const response = await fetch('{{ url_for("get_started") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                showFlashMessage('Account created successfully! Redirecting...', 'success');
+                setTimeout(() => {
+                    window.location.href = result.redirect;
+                }, 1500);
+            } else {
+                showFlashMessage(result.message || 'An error occurred during signup.', 'error');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
+            }
+        } catch (error) {
+            console.error('Signup error:', error);
+            showFlashMessage('An error occurred. Please try again.', 'error');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnText;
+        }
+    });
+
+// Add this function to show flash messages
+function showFlashMessage(message, type) {
+    const flashContainer = document.createElement('div');
+    flashContainer.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg ${
+        type === 'success' ? 'bg-aura-green text-white' : 'bg-red-500 text-white'
+    }`;
+    flashContainer.innerHTML = message;
+    document.body.appendChild(flashContainer);
+    
+    // Remove after 5 seconds
+    setTimeout(() => {
+        flashContainer.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+        setTimeout(() => {
+            document.body.removeChild(flashContainer);
+        }, 500);
+    }, 5000);
+}
+
+    // Initialize the form
+    showStep(1);
+
+    // Add event listener to email field
+    document.addEventListener('DOMContentLoaded', function() {
+        const emailInput = document.getElementById('email');
+        if (emailInput) {
+            emailInput.addEventListener('blur', validateEmail);
+        }
+    });
+</script>
+{% endblock %}

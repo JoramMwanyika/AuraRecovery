@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AuraRecovery - AI-Powered Addiction Recovery Support{% endblock %}</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Custom Tailwind Config -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'aura-blue': '#4A90E2',
+                        'aura-blue-dark': '#3A7BC8',
+                        'aura-green': '#A8E6CF',
+                        'aura-green-dark': '#98D6BF',
+                        'aura-gray': '#F5F5F5',
+                        'aura-charcoal': '#333333',
+                    },
+                    animation: {
+                        'pulse': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'bounce': 'bounce 1s infinite',
+                        'ping': 'ping 1s cubic-bezier(0, 0, 0.2, 1) infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    
+    <!-- Custom CSS for animations and transitions -->
+    <style>
+        .transition-all {
+            transition: all 0.3s ease;
+        }
+        
+        .backdrop-blur-xl {
+            backdrop-filter: blur(24px);
+        }
+        
+        .shadow-3xl {
+            box-shadow: 0 35px 60px -12px rgba(0, 0, 0, 0.25);
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #4A90E2;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3A7BC8;
+        }
+        
+        /* Dark mode scrollbar */
+        .dark ::-webkit-scrollbar-track {
+            background: #374151;
+        }
+        
+        .dark ::-webkit-scrollbar-thumb {
+            background: #6B7280;
+        }
+        
+        .dark ::-webkit-scrollbar-thumb:hover {
+            background: #4A90E2;
+        }
+    </style>
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="h-full bg-white dark:bg-gray-900 transition-colors duration-300">
+    {% block content %}{% endblock %}
+    
+    <!-- JavaScript for theme management -->
+    <script>
+        // Theme management
+        function initializeTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            
+            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                document.documentElement.classList.add('dark');
+            }
+        }
+        
+        function toggleDarkMode() {
+            const isDark = document.documentElement.classList.contains('dark');
+            
+            if (isDark) {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+        
+        // Initialize theme on page load
+        initializeTheme();
+        
+        // Initialize Lucide icons
+        document.addEventListener('DOMContentLoaded', function() {
+            lucide.createIcons();
+        });
+        
+        // Smooth scrolling for anchor links
+        function scrollToSection(sectionId) {
+            const element = document.getElementById(sectionId);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+        
+        // Flash message handling
+        function showFlashMessage(message, type = 'info') {
+            const flashContainer = document.getElementById('flash-messages');
+            if (flashContainer) {
+                const flashDiv = document.createElement('div');
+                flashDiv.className = `flash-message flash-${type} fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg transition-all duration-300`;
+                flashDiv.innerHTML = `
+                    <div class="flex items-center space-x-2">
+                        <span>${message}</span>
+                        <button onclick="this.parentElement.parentElement.remove()" class="ml-2">
+                            <i data-lucide="x" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                `;
+                
+                // Add appropriate styling based on type
+                if (type === 'success') {
+                    flashDiv.classList.add('bg-green-500', 'text-white');
+                } else if (type === 'error') {
+                    flashDiv.classList.add('bg-red-500', 'text-white');
+                } else {
+                    flashDiv.classList.add('bg-blue-500', 'text-white');
+                }
+                
+                flashContainer.appendChild(flashDiv);
+                lucide.createIcons();
+                
+                // Auto-remove after 5 seconds
+                setTimeout(() => {
+                    if (flashDiv.parentElement) {
+                        flashDiv.remove();
+                    }
+                }, 5000);
+            }
+        }
+    </script>
+    
+    <!-- Flash messages container -->
+    <div id="flash-messages"></div>
+    
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

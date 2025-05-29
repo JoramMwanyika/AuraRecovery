@@ -1,0 +1,593 @@
+{% extends "base.html" %}
+
+{% block title %}My Profile - AuraRecovery{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-aura-gray dark:bg-gray-900 transition-colors duration-300">
+    <!-- Header -->
+    <header class="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl shadow-sm border-b border-gray-200/20 dark:border-gray-700/20">
+        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <a href="{{ url_for('progress') }}" class="flex items-center space-x-3">
+                <i data-lucide="arrow-left" class="w-5 h-5 text-gray-600 dark:text-gray-300"></i>
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 bg-aura-blue rounded-lg flex items-center justify-center shadow-lg">
+                        <i data-lucide="heart" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <span class="text-xl font-bold text-aura-charcoal dark:text-white">AuraRecovery</span>
+                </div>
+            </a>
+
+            <div class="flex items-center space-x-4">
+                <button onclick="toggleDarkMode()" class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center">
+                    <i data-lucide="sun" class="w-5 h-5 text-yellow-500 hidden dark:block"></i>
+                    <i data-lucide="moon" class="w-5 h-5 text-gray-600 block dark:hidden"></i>
+                </button>
+                <a href="{{ url_for('logout') }}" class="border border-red-500 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 px-4 py-2 rounded-lg transition-colors">
+                    Sign Out
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-4 py-8">
+        <div class="max-w-4xl mx-auto">
+            <!-- Profile Header -->
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-aura-charcoal dark:text-white mb-2">My Profile</h1>
+                <p class="text-gray-600 dark:text-gray-300">
+                    Manage your account information and preferences
+                </p>
+            </div>
+
+            <!-- Profile Card -->
+            <div class="border border-gray-200 dark:border-gray-700 shadow-xl bg-white dark:bg-gray-800 rounded-lg">
+                <div class="p-6">
+                    <form id="profileForm" class="space-y-6">
+                        <!-- Personal Information -->
+                        <div>
+                            <h2 class="text-xl font-semibold text-aura-charcoal dark:text-white mb-4">Personal Information</h2>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="space-y-2">
+                                    <label for="firstName" class="text-aura-charcoal dark:text-gray-200 font-medium">
+                                        First Name
+                                    </label>
+                                    <input
+                                        id="firstName"
+                                        name="firstName"
+                                        placeholder="Enter your first name"
+                                        required
+                                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:border-aura-blue focus:ring-2 focus:ring-aura-blue/20 bg-white dark:bg-gray-700 text-aura-charcoal dark:text-white transition-colors"
+                                    />
+                                </div>
+                                <div class="space-y-2">
+                                    <label for="lastName" class="text-aura-charcoal dark:text-gray-200 font-medium">
+                                        Last Name
+                                    </label>
+                                    <input
+                                        id="lastName"
+                                        name="lastName"
+                                        placeholder="Enter your last name"
+                                        required
+                                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:border-aura-blue focus:ring-2 focus:ring-aura-blue/20 bg-white dark:bg-gray-700 text-aura-charcoal dark:text-white transition-colors"
+                                    />
+                                </div>
+                            </div>
+
+                            <div class="mt-4 space-y-2">
+                                <label for="email" class="text-aura-charcoal dark:text-gray-200 font-medium">
+                                    Email Address
+                                </label>
+                                <input
+                                    id="email"
+                                    name="email"
+                                    type="email"
+                                    placeholder="Enter your email"
+                                    required
+                                    disabled
+                                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-gray-600 text-aura-charcoal dark:text-white"
+                                />
+                                <p class="text-xs text-gray-500 dark:text-gray-400">Email address cannot be changed</p>
+                            </div>
+
+                            <div class="mt-4 space-y-2">
+                                <label for="dateOfBirth" class="text-aura-charcoal dark:text-gray-200 font-medium">
+                                    Date of Birth
+                                </label>
+                                <input
+                                    id="dateOfBirth"
+                                    name="dateOfBirth"
+                                    type="date"
+                                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:border-aura-blue focus:ring-2 focus:ring-aura-blue/20 bg-white dark:bg-gray-700 text-aura-charcoal dark:text-white transition-colors"
+                                />
+                            </div>
+                        </div>
+
+                        <!-- Preferences -->
+                        <div class="pt-6 border-t border-gray-200 dark:border-gray-700">
+                            <h2 class="text-xl font-semibold text-aura-charcoal dark:text-white mb-4">Preferences</h2>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="space-y-2">
+                                    <label for="country" class="text-aura-charcoal dark:text-gray-200 font-medium">Country/Region</label>
+                                    <select name="country" id="country" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:border-aura-blue bg-white dark:bg-gray-700 text-aura-charcoal dark:text-white">
+                                        <option value="">Select your country</option>
+                                        <option value="brazil">🇧🇷 Brazil</option>
+                                        <option value="nigeria">🇳🇬 Nigeria</option>
+                                        <option value="india">🇮🇳 India</option>
+                                        <option value="mexico">🇲🇽 Mexico</option>
+                                        <option value="philippines">🇵🇭 Philippines</option>
+                                        <option value="other">🌍 Other</option>
+                                    </select>
+                                </div>
+                                <div class="space-y-2">
+                                    <label for="language" class="text-aura-charcoal dark:text-gray-200 font-medium">Preferred Language</label>
+                                    <select name="language" id="language" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:border-aura-blue bg-white dark:bg-gray-700 text-aura-charcoal dark:text-white">
+                                        <option value="">Select your language</option>
+                                        <option value="english">English</option>
+                                        <option value="spanish">Español</option>
+                                        <option value="portuguese">Português</option>
+                                        <option value="hindi">हिंदी</option>
+                                        <option value="arabic">العربية</option>
+                                        <option value="french">Français</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="mt-4 space-y-2">
+                                <label class="text-aura-charcoal dark:text-gray-200 font-medium">I am a:</label>
+                                <div class="grid grid-cols-3 gap-4">
+                                    <div class="flex items-center space-x-2">
+                                        <input
+                                            type="radio"
+                                            id="individual"
+                                            name="userType"
+                                            value="individual"
+                                            class="w-4 h-4 text-aura-blue border-gray-300 focus:ring-aura-blue"
+                                        />
+                                        <label for="individual" class="text-sm text-aura-charcoal dark:text-gray-200">
+                                            Individual
+                                        </label>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <input
+                                            type="radio"
+                                            id="caregiver"
+                                            name="userType"
+                                            value="caregiver"
+                                            class="w-4 h-4 text-aura-blue border-gray-300 focus:ring-aura-blue"
+                                        />
+                                        <label for="caregiver" class="text-sm text-aura-charcoal dark:text-gray-200">
+                                            Caregiver
+                                        </label>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <input
+                                            type="radio"
+                                            id="therapist"
+                                            name="userType"
+                                            value="therapist"
+                                            class="w-4 h-4 text-aura-blue border-gray-300 focus:ring-aura-blue"
+                                        />
+                                        <label for="therapist" class="text-sm text-aura-charcoal dark:text-gray-200">
+                                            Therapist
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recovery Goals -->
+                        <div class="pt-6 border-t border-gray-200 dark:border-gray-700">
+                            <h2 class="text-xl font-semibold text-aura-charcoal dark:text-white mb-4">Recovery Goals</h2>
+                            
+                            <div class="space-y-4">
+                                <label class="text-aura-charcoal dark:text-gray-200 font-medium">
+                                    What are your recovery goals? (Select all that apply)
+                                </label>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    <div class="flex items-center space-x-3">
+                                        <input
+                                            type="checkbox"
+                                            id="goal-sobriety"
+                                            name="recoveryGoals"
+                                            value="Maintain sobriety"
+                                            class="w-4 h-4 text-aura-blue border-gray-300 rounded focus:ring-aura-blue"
+                                        />
+                                        <label for="goal-sobriety" class="text-aura-charcoal dark:text-gray-200">
+                                            Maintain sobriety
+                                        </label>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <input
+                                            type="checkbox"
+                                            id="goal-habits"
+                                            name="recoveryGoals"
+                                            value="Build healthy habits"
+                                            class="w-4 h-4 text-aura-blue border-gray-300 rounded focus:ring-aura-blue"
+                                        />
+                                        <label for="goal-habits" class="text-aura-charcoal dark:text-gray-200">
+                                            Build healthy habits
+                                        </label>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <input
+                                            type="checkbox"
+                                            id="goal-mental"
+                                            name="recoveryGoals"
+                                            value="Improve mental health"
+                                            class="w-4 h-4 text-aura-blue border-gray-300 rounded focus:ring-aura-blue"
+                                        />
+                                        <label for="goal-mental" class="text-aura-charcoal dark:text-gray-200">
+                                            Improve mental health
+                                        </label>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <input
+                                            type="checkbox"
+                                            id="goal-relationships"
+                                            name="recoveryGoals"
+                                            value="Strengthen relationships"
+                                            class="w-4 h-4 text-aura-blue border-gray-300 rounded focus:ring-aura-blue"
+                                        />
+                                        <label for="goal-relationships" class="text-aura-charcoal dark:text-gray-200">
+                                            Strengthen relationships
+                                        </label>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <input
+                                            type="checkbox"
+                                            id="goal-support"
+                                            name="recoveryGoals"
+                                            value="Find peer support"
+                                            class="w-4 h-4 text-aura-blue border-gray-300 rounded focus:ring-aura-blue"
+                                        />
+                                        <label for="goal-support" class="text-aura-charcoal dark:text-gray-200">
+                                            Find peer support
+                                        </label>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <input
+                                            type="checkbox"
+                                            id="goal-professional"
+                                            name="recoveryGoals"
+                                            value="Access professional help"
+                                            class="w-4 h-4 text-aura-blue border-gray-300 rounded focus:ring-aura-blue"
+                                        />
+                                        <label for="goal-professional" class="text-aura-charcoal dark:text-gray-200">
+                                            Access professional help
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Security -->
+                        <div class="pt-6 border-t border-gray-200 dark:border-gray-700">
+                            <h2 class="text-xl font-semibold text-aura-charcoal dark:text-white mb-4">Security</h2>
+                            
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="font-medium text-aura-charcoal dark:text-white">Change Password</h3>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Update your password to keep your account secure</p>
+                                </div>
+                                <button type="button" id="changePasswordBtn" class="px-4 py-2 border border-aura-blue text-aura-blue hover:bg-aura-blue/10 rounded-lg transition-colors">
+                                    Change Password
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="pt-6 flex justify-end">
+                            <button
+                                type="submit"
+                                class="bg-aura-blue hover:bg-aura-blue-dark text-white px-6 py-3 rounded-lg transition-colors"
+                            >
+                                <i data-lucide="save" class="w-4 h-4 mr-2 inline"></i>
+                                Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Password Change Modal -->
+    <div id="passwordModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-semibold text-aura-charcoal dark:text-white">Change Password</h3>
+                <button id="closePasswordModal" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <form id="passwordForm" class="space-y-4">
+                <div class="space-y-2">
+                    <label for="currentPassword" class="text-aura-charcoal dark:text-gray-200 font-medium">
+                        Current Password
+                    </label>
+                    <div class="relative">
+                        <i data-lucide="lock" class="absolute left-3 top-3 h-4 w-4 text-gray-400"></i>
+                        <input
+                            id="currentPassword"
+                            name="currentPassword"
+                            type="password"
+                            placeholder="Enter your current password"
+                            required
+                            class="w-full pl-10 pr-10 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:border-aura-blue focus:ring-2 focus:ring-aura-blue/20 bg-white dark:bg-gray-700 text-aura-charcoal dark:text-white transition-colors"
+                        />
+                        <button
+                            type="button"
+                            onclick="togglePasswordVisibility('currentPassword')"
+                            class="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                        >
+                            <i data-lucide="eye" id="currentPassword-eye-icon" class="h-4 w-4"></i>
+                            <i data-lucide="eye-off" id="currentPassword-eye-off-icon" class="h-4 w-4 hidden"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="space-y-2">
+                    <label for="newPassword" class="text-aura-charcoal dark:text-gray-200 font-medium">
+                        New Password
+                    </label>
+                    <div class="relative">
+                        <i data-lucide="lock" class="absolute left-3 top-3 h-4 w-4 text-gray-400"></i>
+                        <input
+                            id="newPassword"
+                            name="newPassword"
+                            type="password"
+                            placeholder="Enter your new password"
+                            required
+                            class="w-full pl-10 pr-10 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:border-aura-blue focus:ring-2 focus:ring-aura-blue/20 bg-white dark:bg-gray-700 text-aura-charcoal dark:text-white transition-colors"
+                        />
+                        <button
+                            type="button"
+                            onclick="togglePasswordVisibility('newPassword')"
+                            class="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                        >
+                            <i data-lucide="eye" id="newPassword-eye-icon" class="h-4 w-4"></i>
+                            <i data-lucide="eye-off" id="newPassword-eye-off-icon" class="h-4 w-4 hidden"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="space-y-2">
+                    <label for="confirmNewPassword" class="text-aura-charcoal dark:text-gray-200 font-medium">
+                        Confirm New Password
+                    </label>
+                    <div class="relative">
+                        <i data-lucide="lock" class="absolute left-3 top-3 h-4 w-4 text-gray-400"></i>
+                        <input
+                            id="confirmNewPassword"
+                            name="confirmNewPassword"
+                            type="password"
+                            placeholder="Confirm your new password"
+                            required
+                            class="w-full pl-10 pr-10 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:border-aura-blue focus:ring-2 focus:ring-aura-blue/20 bg-white dark:bg-gray-700 text-aura-charcoal dark:text-white transition-colors"
+                        />
+                        <button
+                            type="button"
+                            onclick="togglePasswordVisibility('confirmNewPassword')"
+                            class="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                        >
+                            <i data-lucide="eye" id="confirmNewPassword-eye-icon" class="h-4 w-4"></i>
+                            <i data-lucide="eye-off" id="confirmNewPassword-eye-off-icon" class="h-4 w-4 hidden"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="pt-4 flex justify-end space-x-3">
+                    <button
+                        type="button"
+                        id="cancelPasswordChange"
+                        class="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="submit"
+                        class="bg-aura-blue hover:bg-aura-blue-dark text-white px-6 py-2 rounded-lg transition-colors"
+                    >
+                        Update Password
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Toggle password visibility
+    function togglePasswordVisibility(inputId) {
+        const passwordInput = document.getElementById(inputId);
+        const eyeIcon = document.getElementById(`${inputId}-eye-icon`);
+        const eyeOffIcon = document.getElementById(`${inputId}-eye-off-icon`);
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            eyeIcon.classList.add('hidden');
+            eyeOffIcon.classList.remove('hidden');
+        } else {
+            passwordInput.type = 'password';
+            eyeIcon.classList.remove('hidden');
+            eyeOffIcon.classList.add('hidden');
+        }
+    }
+
+    // Password modal controls
+    document.addEventListener('DOMContentLoaded', function() {
+        const passwordModal = document.getElementById('passwordModal');
+        const changePasswordBtn = document.getElementById('changePasswordBtn');
+        const closePasswordModal = document.getElementById('closePasswordModal');
+        const cancelPasswordChange = document.getElementById('cancelPasswordChange');
+        
+        changePasswordBtn.addEventListener('click', function() {
+            passwordModal.classList.remove('hidden');
+        });
+        
+        closePasswordModal.addEventListener('click', function() {
+            passwordModal.classList.add('hidden');
+        });
+        
+        cancelPasswordChange.addEventListener('click', function() {
+            passwordModal.classList.add('hidden');
+        });
+        
+        // Close modal when clicking outside
+        passwordModal.addEventListener('click', function(e) {
+            if (e.target === passwordModal) {
+                passwordModal.classList.add('hidden');
+            }
+        });
+        
+        // Password change form submission
+        document.getElementById('passwordForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+            
+            // Validate passwords
+            if (newPassword !== confirmNewPassword) {
+                showFlashMessage('New passwords do not match', 'error');
+                return;
+            }
+            
+            if (newPassword.length < 8) {
+                showFlashMessage('Password must be at least 8 characters long', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('{{ url_for("change_password") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        currentPassword: currentPassword,
+                        newPassword: newPassword
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showFlashMessage('Password updated successfully', 'success');
+                    passwordModal.classList.add('hidden');
+                    document.getElementById('passwordForm').reset();
+                } else {
+                    showFlashMessage(data.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showFlashMessage('An error occurred. Please try again.', 'error');
+            }
+        });
+        
+        // Load user profile data
+        loadProfileData();
+        
+        // Profile form submission
+        document.getElementById('profileForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const data = {};
+            
+            // Convert FormData to object
+            for (let [key, value] of formData.entries()) {
+                if (key === 'recoveryGoals') {
+                    if (!data[key]) data[key] = [];
+                    data[key].push(value);
+                } else {
+                    data[key] = value;
+                }
+            }
+            
+            try {
+                const response = await fetch('{{ url_for("profile") }}', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showFlashMessage('Profile updated successfully', 'success');
+                } else {
+                    showFlashMessage(result.message || 'An error occurred', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showFlashMessage('An error occurred. Please try again.', 'error');
+            }
+        });
+    });
+
+    // Load user profile data
+    async function loadProfileData() {
+        try {
+            const response = await fetch('{{ url_for("profile") }}');
+            const data = await response.json();
+            
+            // Populate form fields
+            document.getElementById('firstName').value = data.firstName || '';
+            document.getElementById('lastName').value = data.lastName || '';
+            document.getElementById('email').value = data.email || '';
+            document.getElementById('dateOfBirth').value = data.dateOfBirth || '';
+            
+            // Select country and language
+            if (data.country) {
+                document.getElementById('country').value = data.country;
+            }
+            
+            if (data.language) {
+                document.getElementById('language').value = data.language;
+            }
+            
+            // Set user type radio button
+            if (data.userType) {
+                document.querySelector(`input[name="userType"][value="${data.userType}"]`).checked = true;
+            }
+            
+            // Set recovery goals checkboxes
+            if (data.recoveryGoals && data.recoveryGoals.length) {
+                data.recoveryGoals.forEach(goal => {
+                    const checkbox = document.querySelector(`input[name="recoveryGoals"][value="${goal}"]`);
+                    if (checkbox) {
+                        checkbox.checked = true;
+                    }
+                });
+            }
+        } catch (error) {
+            console.error('Error loading profile data:', error);
+            showFlashMessage('Failed to load profile data', 'error');
+        }
+    }
+
+    // Flash message function
+    function showFlashMessage(message, type) {
+        const flashContainer = document.createElement('div');
+        flashContainer.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg ${
+            type === 'success' ? 'bg-aura-green text-white' : 'bg-red-500 text-white'
+        }`;
+        flashContainer.innerHTML = message;
+        document.body.appendChild(flashContainer);
+        
+        // Remove after 5 seconds
+        setTimeout(() => {
+            flashContainer.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+            setTimeout(() => {
+                document.body.removeChild(flashContainer);
+            }, 500);
+        }, 5000);
+    }
+</script>
+{% endblock %}

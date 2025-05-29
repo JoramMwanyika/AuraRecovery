@@ -1,0 +1,718 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300">
+    <!-- Header -->
+    <header class="fixed top-0 w-full bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl shadow-sm border-b border-gray-200/20 dark:border-gray-700/20 z-50 transition-all duration-300">
+        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/25 dark:shadow-blue-500/40">
+                    <i data-lucide="heart" class="w-6 h-6 text-white"></i>
+                </div>
+                <span class="text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                    AuraRecovery
+                </span>
+            </div>
+
+            <nav class="hidden lg:flex items-center space-x-8">
+                <button onclick="scrollToSection('home')" class="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium">
+                    Home
+                </button>
+                <button onclick="scrollToSection('features')" class="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium">
+                    Features
+                </button>
+                <button onclick="scrollToSection('how-it-works')" class="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium">
+                    How It Works
+                </button>
+                <button onclick="scrollToSection('testimonials')" class="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium">
+                    Stories
+                </button>
+                <a href="#contact" class="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium">
+                    Contact
+                </a>
+            </nav>
+
+            <div class="flex items-center space-x-4">
+                <button onclick="toggleDarkMode()" class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-300 flex items-center justify-center">
+                    <i data-lucide="sun" class="w-5 h-5 text-yellow-500 hidden dark:block"></i>
+                    <i data-lucide="moon" class="w-5 h-5 text-gray-600 block dark:hidden"></i>
+                </button>
+                <a href="{{ url_for('login') }}" class="hidden sm:inline-flex px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium">
+                    Sign In
+                </a>
+                <a href="{{ url_for('get_started') }}" class="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 hover:from-blue-600 hover:via-purple-600 hover:to-pink-600 text-white px-6 py-2 rounded-lg shadow-lg shadow-blue-500/25 dark:shadow-blue-500/40 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/30 font-medium">
+                    Get Started Free
+                </a>
+                <button onclick="toggleMobileMenu()" class="lg:hidden w-10 h-10 flex items-center justify-center">
+                    <i data-lucide="menu" class="w-5 h-5" id="menu-icon"></i>
+                    <i data-lucide="x" class="w-5 h-5 hidden" id="close-icon"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="lg:hidden bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-t border-gray-200/20 dark:border-gray-700/20 hidden">
+            <nav class="container mx-auto px-4 py-4 space-y-4">
+                <button onclick="scrollToSection('home')" class="block text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium">
+                    Home
+                </button>
+                <button onclick="scrollToSection('features')" class="block text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium">
+                    Features
+                </button>
+                <button onclick="scrollToSection('how-it-works')" class="block text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium">
+                    How It Works
+                </button>
+                <button onclick="scrollToSection('testimonials')" class="block text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium">
+                    Stories
+                </button>
+                <a href="#contact" class="block text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium">
+                    Contact
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="pt-24 pb-20 px-4 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-purple-900/20 relative overflow-hidden transition-all duration-500">
+        <!-- Animated Background Elements -->
+        <div class="absolute inset-0 overflow-hidden">
+            <div class="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 via-purple-400/20 to-pink-400/20 dark:from-blue-500/10 dark:via-purple-500/10 dark:to-pink-500/10 rounded-full blur-3xl animate-pulse"></div>
+            <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-green-400/20 via-blue-400/20 to-purple-400/20 dark:from-green-500/10 dark:via-blue-500/10 dark:to-purple-500/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
+            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-purple-400/10 via-pink-400/10 to-blue-400/10 dark:from-purple-500/5 dark:via-pink-500/5 dark:to-blue-500/5 rounded-full blur-3xl animate-pulse" style="animation-delay: 0.5s;"></div>
+        </div>
+
+        <div class="container mx-auto text-center max-w-6xl relative z-10">
+            <div class="mb-8 inline-flex items-center bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm text-blue-800 dark:text-blue-300 border border-blue-200/50 dark:border-blue-700/50 px-6 py-2 text-sm font-medium shadow-lg shadow-blue-500/10 dark:shadow-blue-500/20 hover:shadow-xl hover:shadow-blue-500/20 transition-all duration-300 rounded-full">
+                <i data-lucide="sparkles" class="w-4 h-4 mr-2"></i>
+                Trusted by 25,000+ individuals across 40+ countries
+            </div>
+
+            <h1 class="text-5xl md:text-7xl font-bold text-gray-900 dark:text-white mb-8 leading-tight">
+                Your Journey to 
+                <span class="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent animate-pulse">
+                    Recovery
+                </span> 
+                Starts Here
+            </h1>
+
+            <p class="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed">
+                AI-powered addiction recovery support designed for emerging economies. Get personalized care, connect with peers, and access professional guidance—all in your language.
+            </p>
+
+            <div class="flex flex-col sm:flex-row gap-6 justify-center mb-16">
+                <a href="{{ url_for('get_started') }}" class="inline-flex items-center justify-center bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 hover:from-blue-600 hover:via-purple-600 hover:to-pink-600 text-white px-10 py-6 text-lg font-semibold shadow-xl shadow-blue-500/25 dark:shadow-blue-500/40 hover:shadow-2xl hover:shadow-blue-500/30 transition-all duration-300 transform hover:-translate-y-1 hover:scale-105 rounded-lg">
+                    <i data-lucide="zap" class="mr-3 w-6 h-6"></i>
+                    Start Your Recovery Journey
+                    <i data-lucide="arrow-right" class="ml-3 w-6 h-6"></i>
+                </a>
+                <a href="{{ url_for('progress') }}" class="inline-flex items-center justify-center bg-aura-blue hover:bg-aura-blue-dark text-white px-10 py-6 text-lg font-semibold shadow-xl shadow-blue-500/25 dark:shadow-blue-500/40 hover:shadow-2xl hover:shadow-blue-500/30 transition-all duration-300 transform hover:-translate-y-1 hover:scale-105 rounded-lg">
+                    <i data-lucide="trending-up" class="mr-3 w-6 h-6"></i>
+                    Track My Progress
+                    <i data-lucide="arrow-right" class="ml-3 w-6 h-6"></i>
+                </a>
+                <button onclick="scrollToSection('features')" class="inline-flex items-center justify-center px-10 py-6 text-lg font-semibold border-2 border-blue-200 dark:border-blue-700 text-blue-700 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-300 backdrop-blur-sm bg-white/50 dark:bg-gray-800/50 rounded-lg">
+                    <i data-lucide="play" class="mr-3 w-6 h-6"></i>
+                    Watch Demo (2 min)
+                </button>
+            </div>
+
+            <!-- Enhanced Hero Visual -->
+            <div class="relative max-w-4xl mx-auto">
+                <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-2xl shadow-blue-500/10 dark:shadow-blue-500/20 p-8 border border-gray-200/20 dark:border-gray-700/20 hover:shadow-3xl hover:shadow-blue-500/15 transition-all duration-500">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
+                        <div class="space-y-4">
+                            <div class="flex items-center space-x-3 group">
+                                <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/25 group-hover:shadow-xl group-hover:shadow-blue-500/30 transition-all duration-300 group-hover:scale-110">
+                                    <i data-lucide="brain" class="w-6 h-6 text-white"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold text-gray-800 dark:text-gray-200">AI-Powered Plans</h3>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">Personalized for you</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-3 group">
+                                <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg shadow-green-500/25 group-hover:shadow-xl group-hover:shadow-green-500/30 transition-all duration-300 group-hover:scale-110">
+                                    <i data-lucide="users" class="w-6 h-6 text-white"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold text-gray-800 dark:text-gray-200">Peer Support</h3>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">24/7 community</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="relative">
+                            <div class="w-32 h-32 mx-auto bg-gradient-to-br from-purple-400 via-blue-500 to-green-400 rounded-full flex items-center justify-center shadow-2xl shadow-purple-500/30 dark:shadow-purple-500/40 animate-pulse">
+                                <i data-lucide="heart" class="w-16 h-16 text-white"></i>
+                            </div>
+                            <div class="absolute -top-2 -right-2 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center shadow-lg shadow-green-500/30 animate-bounce">
+                                <i data-lucide="check-circle" class="w-5 h-5 text-white"></i>
+                            </div>
+                            <div class="absolute -bottom-2 -left-2 w-6 h-6 bg-blue-500 rounded-full animate-ping"></div>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div class="flex items-center space-x-3 group">
+                                <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/25 group-hover:shadow-xl group-hover:shadow-purple-500/30 transition-all duration-300 group-hover:scale-110">
+                                    <i data-lucide="shield" class="w-6 h-6 text-white"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold text-gray-800 dark:text-gray-200">Secure & Private</h3>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">End-to-end encrypted</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-3 group">
+                                <div class="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl flex items-center justify-center shadow-lg shadow-orange-500/25 group-hover:shadow-xl group-hover:shadow-orange-500/30 transition-all duration-300 group-hover:scale-110">
+                                    <i data-lucide="globe" class="w-6 h-6 text-white"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold text-gray-800 dark:text-gray-200">15+ Languages</h3>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">Your native language</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Enhanced Stats Section -->
+    <section class="py-16 px-4 bg-white dark:bg-gray-900 transition-colors duration-300">
+        <div class="container mx-auto">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                <div class="space-y-4 group">
+                    <div class="w-16 h-16 mx-auto bg-gradient-to-br from-red-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110">
+                        <i data-lucide="heart" class="w-8 h-8 text-white"></i>
+                    </div>
+                    <div class="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                        25K+
+                    </div>
+                    <div class="text-gray-600 dark:text-gray-400 font-medium">Lives Transformed</div>
+                </div>
+                <div class="space-y-4 group">
+                    <div class="w-16 h-16 mx-auto bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110">
+                        <i data-lucide="globe" class="w-8 h-8 text-white"></i>
+                    </div>
+                    <div class="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                        40+
+                    </div>
+                    <div class="text-gray-600 dark:text-gray-400 font-medium">Countries Served</div>
+                </div>
+                <div class="space-y-4 group">
+                    <div class="w-16 h-16 mx-auto bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110">
+                        <i data-lucide="message-circle" class="w-8 h-8 text-white"></i>
+                    </div>
+                    <div class="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                        15+
+                    </div>
+                    <div class="text-gray-600 dark:text-gray-400 font-medium">Languages Supported</div>
+                </div>
+                <div class="space-y-4 group">
+                    <div class="w-16 h-16 mx-auto bg-gradient-to-br from-yellow-500 to-orange-500 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110">
+                        <i data-lucide="star" class="w-8 h-8 text-white"></i>
+                    </div>
+                    <div class="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                        98%
+                    </div>
+                    <div class="text-gray-600 dark:text-gray-400 font-medium">User Satisfaction</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Enhanced Features Section -->
+    <section id="features" class="py-24 px-4 bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-blue-900/10 dark:to-purple-900/10 transition-all duration-500">
+        <div class="container mx-auto">
+            <div class="text-center mb-20">
+                <div class="mb-6 inline-flex items-center bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm text-blue-800 dark:text-blue-300 border border-blue-200/50 dark:border-blue-700/50 shadow-lg px-4 py-2 rounded-full">
+                    <i data-lucide="target" class="w-4 h-4 mr-2"></i>
+                    Comprehensive Recovery Platform
+                </div>
+                <h2 class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
+                    Everything You Need for 
+                    <span class="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                        Lasting Recovery
+                    </span>
+                </h2>
+                <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+                    Our platform combines cutting-edge AI technology with human compassion to provide comprehensive support tailored to your unique journey.
+                </p>
+            </div>
+
+            <div class="grid lg:grid-cols-2 gap-12 items-center mb-20">
+                <div class="space-y-8">
+                    <div class="flex items-start space-x-4 group">
+                        <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/25 dark:shadow-blue-500/40 flex-shrink-0 group-hover:shadow-xl group-hover:shadow-blue-500/30 transition-all duration-300 group-hover:scale-110">
+                            <i data-lucide="brain" class="w-8 h-8 text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-3">AI-Powered Recovery Plans</h3>
+                            <p class="text-gray-600 dark:text-gray-300 text-lg leading-relaxed">
+                                Our advanced AI analyzes your unique situation, cultural background, and personal preferences to create a customized recovery roadmap that evolves with your progress.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start space-x-4 group">
+                        <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center shadow-lg shadow-green-500/25 dark:shadow-green-500/40 flex-shrink-0 group-hover:shadow-xl group-hover:shadow-green-500/30 transition-all duration-300 group-hover:scale-110">
+                            <i data-lucide="trending-up" class="w-8 h-8 text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-3">Smart Progress Tracking</h3>
+                            <p class="text-gray-600 dark:text-gray-300 text-lg leading-relaxed">
+                                Visualize your journey with intelligent analytics, mood tracking, and milestone celebrations that keep you motivated and on track.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="relative">
+                    <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-2xl shadow-blue-500/10 dark:shadow-blue-500/20 p-8 border border-gray-200/20 dark:border-gray-700/20 hover:shadow-3xl hover:shadow-blue-500/15 transition-all duration-500">
+                        <div class="space-y-6">
+                            <div class="flex items-center justify-between">
+                                <h4 class="font-semibold text-gray-800 dark:text-gray-200">Today's Progress</h4>
+                                <div class="bg-gradient-to-r from-green-500 to-green-600 text-white shadow-lg px-3 py-1 rounded-full text-sm font-medium">Day 47</div>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="flex items-center space-x-3 group">
+                                    <i data-lucide="check-circle" class="w-5 h-5 text-green-500 group-hover:scale-110 transition-transform duration-200"></i>
+                                    <span class="text-gray-700 dark:text-gray-300">Morning meditation completed</span>
+                                </div>
+                                <div class="flex items-center space-x-3 group">
+                                    <i data-lucide="check-circle" class="w-5 h-5 text-green-500 group-hover:scale-110 transition-transform duration-200"></i>
+                                    <span class="text-gray-700 dark:text-gray-300">Peer support session attended</span>
+                                </div>
+                                <div class="flex items-center space-x-3 group">
+                                    <div class="w-5 h-5 border-2 border-gray-300 dark:border-gray-600 rounded-full group-hover:border-blue-500 transition-colors duration-200"></div>
+                                    <span class="text-gray-500 dark:text-gray-400">Evening reflection journal</span>
+                                </div>
+                            </div>
+                            <div class="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 h-3 rounded-full shadow-lg">
+                                <div class="bg-gradient-to-r from-green-400 to-green-500 h-3 rounded-full w-2/3 shadow-lg animate-pulse"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <div class="order-2 lg:order-1 relative">
+                    <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-2xl shadow-purple-500/10 dark:shadow-purple-500/20 p-8 border border-gray-200/20 dark:border-gray-700/20 hover:shadow-3xl hover:shadow-purple-500/15 transition-all duration-500">
+                        <div class="space-y-6">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center shadow-lg">
+                                    <i data-lucide="users" class="w-5 h-5 text-white"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-800 dark:text-gray-200">Recovery Support Group</h4>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 flex items-center">
+                                        <div class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+                                        12 members online
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+                                    <p class="text-sm text-gray-700 dark:text-gray-300">
+                                        "Just completed my 30-day milestone! 🎉"
+                                    </p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Maria - São Paulo</p>
+                                </div>
+                                <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors duration-200">
+                                    <p class="text-sm text-gray-700 dark:text-gray-300">
+                                        "The meditation exercises really help with cravings"
+                                    </p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">James - Lagos</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="order-1 lg:order-2 space-y-8">
+                    <div class="flex items-start space-x-4 group">
+                        <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg shadow-purple-500/25 dark:shadow-purple-500/40 flex-shrink-0 group-hover:shadow-xl group-hover:shadow-purple-500/30 transition-all duration-300 group-hover:scale-110">
+                            <i data-lucide="users" class="w-8 h-8 text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-3">Global Peer Community</h3>
+                            <p class="text-gray-600 dark:text-gray-300 text-lg leading-relaxed">
+                                Connect with others who understand your journey. Join support groups, share experiences, and build lasting friendships in a safe, moderated environment.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start space-x-4 group">
+                        <div class="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl flex items-center justify-center shadow-lg shadow-orange-500/25 dark:shadow-orange-500/40 flex-shrink-0 group-hover:shadow-xl group-hover:shadow-orange-500/30 transition-all duration-300 group-hover:scale-110">
+                            <i data-lucide="globe" class="w-8 h-8 text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-3">Culturally Sensitive Care</h3>
+                            <p class="text-gray-600 dark:text-gray-300 text-lg leading-relaxed">
+                                Access resources and support that respect your cultural values and traditions, available in 15+ languages with local context and understanding.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Enhanced How It Works -->
+    <section id="how-it-works" class="py-24 px-4 bg-white dark:bg-gray-900 transition-colors duration-300">
+        <div class="container mx-auto">
+            <div class="text-center mb-20">
+                <div class="mb-6 inline-flex items-center bg-gradient-to-r from-purple-100 to-blue-100 dark:from-purple-900/50 dark:to-blue-900/50 text-purple-800 dark:text-purple-300 border border-purple-200/50 dark:border-purple-700/50 shadow-lg px-4 py-2 rounded-full">
+                    <i data-lucide="sparkles" class="w-4 h-4 mr-2"></i>
+                    Simple & Effective Process
+                </div>
+                <h2 class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
+                    Your Recovery Journey in 
+                    <span class="bg-gradient-to-r from-purple-600 via-blue-600 to-green-600 bg-clip-text text-transparent">
+                        4 Simple Steps
+                    </span>
+                </h2>
+                <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+                    We've designed our platform to be intuitive and supportive, guiding you through each step of your recovery journey.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="text-center group">
+                    <div class="relative mb-8">
+                        <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-3xl flex items-center justify-center mx-auto shadow-xl shadow-blue-500/25 dark:shadow-blue-500/40 group-hover:shadow-2xl group-hover:shadow-blue-500/30 transition-all duration-300 transform group-hover:-translate-y-2 group-hover:scale-110">
+                            <i data-lucide="shield" class="w-10 h-10 text-white"></i>
+                        </div>
+                        <div class="absolute -top-2 -right-2 w-8 h-8 bg-white dark:bg-gray-800 border-4 border-gray-100 dark:border-gray-700 rounded-full flex items-center justify-center shadow-lg">
+                            <span class="text-sm font-bold text-gray-700 dark:text-gray-300">1</span>
+                        </div>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Secure Registration</h3>
+                    <p class="text-gray-600 dark:text-gray-300 leading-relaxed">Create your private account with military-grade encryption. Your privacy and safety are our top priorities.</p>
+                </div>
+
+                <div class="text-center group">
+                    <div class="relative mb-8">
+                        <div class="w-20 h-20 bg-gradient-to-br from-purple-500 to-purple-600 rounded-3xl flex items-center justify-center mx-auto shadow-xl shadow-purple-500/25 dark:shadow-purple-500/40 group-hover:shadow-2xl group-hover:shadow-purple-500/30 transition-all duration-300 transform group-hover:-translate-y-2 group-hover:scale-110">
+                            <i data-lucide="brain" class="w-10 h-10 text-white"></i>
+                        </div>
+                        <div class="absolute -top-2 -right-2 w-8 h-8 bg-white dark:bg-gray-800 border-4 border-gray-100 dark:border-gray-700 rounded-full flex items-center justify-center shadow-lg">
+                            <span class="text-sm font-bold text-gray-700 dark:text-gray-300">2</span>
+                        </div>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Personal Assessment</h3>
+                    <p class="text-gray-600 dark:text-gray-300 leading-relaxed">Complete a comprehensive, culturally-sensitive assessment that helps us understand your unique situation.</p>
+                </div>
+
+                <div class="text-center group">
+                    <div class="relative mb-8">
+                        <div class="w-20 h-20 bg-gradient-to-br from-green-500 to-green-600 rounded-3xl flex items-center justify-center mx-auto shadow-xl shadow-green-500/25 dark:shadow-green-500/40 group-hover:shadow-2xl group-hover:shadow-green-500/30 transition-all duration-300 transform group-hover:-translate-y-2 group-hover:scale-110">
+                            <i data-lucide="trending-up" class="w-10 h-10 text-white"></i>
+                        </div>
+                        <div class="absolute -top-2 -right-2 w-8 h-8 bg-white dark:bg-gray-800 border-4 border-gray-100 dark:border-gray-700 rounded-full flex items-center justify-center shadow-lg">
+                            <span class="text-sm font-bold text-gray-700 dark:text-gray-300">3</span>
+                        </div>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Custom Recovery Plan</h3>
+                    <p class="text-gray-600 dark:text-gray-300 leading-relaxed">Receive your AI-generated, personalized recovery roadmap with daily goals and adaptive strategies.</p>
+                </div>
+
+                <div class="text-center group">
+                    <div class="relative mb-8">
+                        <div class="w-20 h-20 bg-gradient-to-br from-orange-500 to-red-500 rounded-3xl flex items-center justify-center mx-auto shadow-xl shadow-orange-500/25 dark:shadow-orange-500/40 group-hover:shadow-2xl group-hover:shadow-orange-500/30 transition-all duration-300 transform group-hover:-translate-y-2 group-hover:scale-110">
+                            <i data-lucide="users" class="w-10 h-10 text-white"></i>
+                        </div>
+                        <div class="absolute -top-2 -right-2 w-8 h-8 bg-white dark:bg-gray-800 border-4 border-gray-100 dark:border-gray-700 rounded-full flex items-center justify-center shadow-lg">
+                            <span class="text-sm font-bold text-gray-700 dark:text-gray-300">4</span>
+                        </div>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Connect & Thrive</h3>
+                    <p class="text-gray-600 dark:text-gray-300 leading-relaxed">Join support groups, access professional guidance, and celebrate milestones with your community.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Enhanced Testimonials -->
+    <section id="testimonials" class="py-24 px-4 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-blue-900/10 dark:to-purple-900/10 transition-all duration-500">
+        <div class="container mx-auto">
+            <div class="text-center mb-20">
+                <div class="mb-6 inline-flex items-center bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm text-green-800 dark:text-green-300 border border-green-200/50 dark:border-green-700/50 shadow-lg px-4 py-2 rounded-full">
+                    <i data-lucide="heart" class="w-4 h-4 mr-2"></i>
+                    Real Stories, Real Impact
+                </div>
+                <h2 class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
+                    Stories of 
+                    <span class="bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 bg-clip-text text-transparent">
+                        Hope & Healing
+                    </span>
+                </h2>
+                <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+                    Hear from real people whose lives have been transformed through our platform. Their journeys inspire us every day.
+                </p>
+            </div>
+
+            <div class="grid lg:grid-cols-3 gap-8">
+                <div class="border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border border-gray-200/20 dark:border-gray-700/20 group rounded-lg">
+                    <div class="p-8">
+                        <div class="flex items-center mb-6">
+                            <i data-lucide="star" class="w-5 h-5 fill-yellow-400 text-yellow-400 group-hover:scale-110 transition-transform duration-200"></i>
+                            <i data-lucide="star" class="w-5 h-5 fill-yellow-400 text-yellow-400 group-hover:scale-110 transition-transform duration-200" style="transition-delay: 100ms;"></i>
+                            <i data-lucide="star" class="w-5 h-5 fill-yellow-400 text-yellow-400 group-hover:scale-110 transition-transform duration-200" style="transition-delay: 200ms;"></i>
+                            <i data-lucide="star" class="w-5 h-5 fill-yellow-400 text-yellow-400 group-hover:scale-110 transition-transform duration-200" style="transition-delay: 300ms;"></i>
+                            <i data-lucide="star" class="w-5 h-5 fill-yellow-400 text-yellow-400 group-hover:scale-110 transition-transform duration-200" style="transition-delay: 400ms;"></i>
+                        </div>
+                        <blockquote class="text-gray-700 dark:text-gray-300 mb-8 text-lg leading-relaxed italic">
+                            "AuraRecovery understood my cultural background in ways traditional resources couldn't. The AI coach felt like it truly knew me, and the Portuguese support group became my second family."
+                        </blockquote>
+                        <div class="flex items-center">
+                            <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-blue-500 rounded-full flex items-center justify-center mr-4 text-2xl shadow-lg group-hover:shadow-xl group-hover:scale-110 transition-all duration-300">
+                                🇧🇷
+                            </div>
+                            <div>
+                                <p class="font-bold text-gray-900 dark:text-white text-lg">Maria Santos</p>
+                                <p class="text-gray-600 dark:text-gray-400">São Paulo, Brazil</p>
+                                <p class="text-blue-600 dark:text-blue-400 font-medium">8 months in recovery</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border border-gray-200/20 dark:border-gray-700/20 group rounded-lg">
+                    <div class="p-8">
+                        <div class="flex items-center mb-6">
+                            <i data-lucide="star" class="w-5 h-5 fill-yellow-400 text-yellow-400 group-hover:scale-110 transition-transform duration-200"></i>
+                            <i data-lucide="star" class="w-5 h-5 fill-yellow-400 text-yellow-400 group-hover:scale-110 transition-transform duration-200" style="transition-delay: 100ms;"></i>
+                            <i data-lucide="star" class="w-5 h-5 fill-yellow-400 text-yellow-400 group-hover:scale-110 transition-transform duration-200" style="transition-delay: 200ms;"></i>
+                            <i data-lucide="star" class="w-5 h-5 fill-yellow-400 text-yellow-400 group-hover:scale-110 transition-transform duration-200" style="transition-delay: 300ms;"></i>
+                            <i data-lucide="star" class="w-5 h-5 fill-yellow-400 text-yellow-400 group-hover:scale-110 transition-transform duration-200" style="transition-delay: 400ms;"></i>
+                        </div>
+                        <blockquote class="text-gray-700 dark:text-gray-300 mb-8 text-lg leading-relaxed italic">
+                            "When my son struggled with addiction, AuraRecovery helped our entire family understand and heal together. The family support resources were life-changing."
+                        </blockquote>
+                        <div class="flex items-center">
+                            <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center mr-4 text-2xl shadow-lg group-hover:shadow-xl group-hover:scale-110 transition-all duration-300">
+                                🇳🇬
+                            </div>
+                            <div>
+                                <p class="font-bold text-gray-900 dark:text-white text-lg">James Okafor</p>
+                                <p class="text-gray-600 dark:text-gray-400">Lagos, Nigeria</p>
+                                <p class="text-blue-600 dark:text-blue-400 font-medium">Father & Caregiver</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border border-gray-200/20 dark:border-gray-700/20 group rounded-lg">
+                    <div class="p-8">
+                        <div class="flex items-center mb-6">
+                            <i data-lucide="star" class="w-5 h-5 fill-yellow-400 text-yellow-400 group-hover:scale-110 transition-transform duration-200"></i>
+                            <i data-lucide="star" class="w-5 h-5 fill-yellow-400 text-yellow-400 group-hover:scale-110 transition-transform duration-200" style="transition-delay: 100ms;"></i>
+                            <i data-lucide="star" class="w-5 h-5 fill-yellow-400 text-yellow-400 group-hover:scale-110 transition-transform duration-200" style="transition-delay: 200ms;"></i>
+                            <i data-lucide="star" class="w-5 h-5 fill-yellow-400 text-yellow-400 group-hover:scale-110 transition-transform duration-200" style="transition-delay: 300ms;"></i>
+                            <i data-lucide="star" class="w-5 h-5 fill-yellow-400 text-yellow-400 group-hover:scale-110 transition-transform duration-200" style="transition-delay: 400ms;"></i>
+                        </div>
+                        <blockquote class="text-gray-700 dark:text-gray-300 mb-8 text-lg leading-relaxed italic">
+                            "I use AuraRecovery to extend my practice to underserved communities. The cultural sensitivity and multilingual support are unmatched in the industry."
+                        </blockquote>
+                        <div class="flex items-center">
+                            <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center mr-4 text-2xl shadow-lg group-hover:shadow-xl group-hover:scale-110 transition-all duration-300">
+                                🇮🇳
+                            </div>
+                            <div>
+                                <p class="font-bold text-gray-900 dark:text-white text-lg">Dr. Priya Sharma</p>
+                                <p class="text-gray-600 dark:text-gray-400">Mumbai, India</p>
+                                <p class="text-blue-600 dark:text-blue-400 font-medium">Licensed Therapist</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Enhanced CTA Section -->
+    <section class="py-24 px-4 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 relative overflow-hidden">
+        <div class="absolute inset-0 bg-black/10"></div>
+        <div class="absolute inset-0 overflow-hidden">
+            <div class="absolute -top-40 -right-40 w-80 h-80 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
+            <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-white/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
+        </div>
+        <div class="container mx-auto text-center relative z-10">
+            <h2 class="text-4xl md:text-6xl font-bold text-white mb-8 leading-tight">
+                Ready to Transform Your Life?
+            </h2>
+            <p class="text-xl md:text-2xl text-blue-100 mb-12 max-w-3xl mx-auto leading-relaxed">
+                Join thousands of individuals who have found hope, healing, and lasting recovery through AuraRecovery. Your journey to a better life starts with a single step.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-6 justify-center">
+                <a href="{{ url_for('get_started') }}" class="inline-flex items-center justify-center bg-white text-blue-600 hover:bg-gray-100 px-10 py-6 text-lg font-bold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 hover:scale-105 rounded-lg">
+                    <i data-lucide="zap" class="mr-3 w-6 h-6"></i>
+                    Start Your Recovery Journey
+                    <i data-lucide="arrow-right" class="ml-3 w-6 h-6"></i>
+                </a>
+                <a href="{{ url_for('progress') }}" class="inline-flex items-center justify-center border-2 border-white text-white hover:bg-white hover:text-blue-600 px-10 py-6 text-lg font-bold transition-all duration-300 backdrop-blur-sm bg-white/10 rounded-lg">
+                    <i data-lucide="trending-up" class="mr-3 w-6 h-6"></i>
+                    Track My Progress
+                </a>
+            </div>
+            <p class="text-blue-200 mt-8 text-lg flex items-center justify-center flex-wrap gap-4">
+                <span class="flex items-center">
+                    <i data-lucide="check-circle" class="w-5 h-5 mr-2"></i>
+                    Free to start
+                </span>
+                <span class="flex items-center">
+                    <i data-lucide="check-circle" class="w-5 h-5 mr-2"></i>
+                    No credit card required
+                </span>
+                <span class="flex items-center">
+                    <i data-lucide="check-circle" class="w-5 h-5 mr-2"></i>
+                    Complete privacy guaranteed
+                </span>
+            </p>
+        </div>
+    </section>
+
+    <!-- Enhanced Footer -->
+    <footer id="contact" class="bg-gray-900 dark:bg-black text-white py-16 px-4 transition-colors duration-300">
+        <div class="container mx-auto">
+            <div class="grid md:grid-cols-2 lg:grid-cols-5 gap-8">
+                <div class="lg:col-span-2">
+                    <div class="flex items-center space-x-3 mb-6">
+                        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/25">
+                            <i data-lucide="heart" class="w-7 h-7 text-white"></i>
+                        </div>
+                        <span class="text-2xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                            AuraRecovery
+                        </span>
+                    </div>
+                    <p class="text-gray-400 mb-6 text-lg leading-relaxed max-w-md">
+                        Empowering recovery through technology, compassion, and community. Together, we're building a world where everyone has access to quality addiction recovery support.
+                    </p>
+                    <div class="flex space-x-4">
+                        <div class="w-10 h-10 bg-gray-800 dark:bg-gray-700 rounded-lg flex items-center justify-center hover:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer transition-all duration-300 hover:scale-110">
+                            <i data-lucide="message-circle" class="w-5 h-5 text-gray-400 hover:text-white"></i>
+                        </div>
+                        <div class="w-10 h-10 bg-gray-800 dark:bg-gray-700 rounded-lg flex items-center justify-center hover:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer transition-all duration-300 hover:scale-110">
+                            <i data-lucide="globe" class="w-5 h-5 text-gray-400 hover:text-white"></i>
+                        </div>
+                        <div class="w-10 h-10 bg-gray-800 dark:bg-gray-700 rounded-lg flex items-center justify-center hover:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer transition-all duration-300 hover:scale-110">
+                            <i data-lucide="users" class="w-5 h-5 text-gray-400 hover:text-white"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="font-bold mb-6 text-lg">Platform</h4>
+                    <ul class="space-y-3 text-gray-400">
+                        <li>
+                            <button onclick="scrollToSection('features')" class="hover:text-white transition-colors hover:translate-x-1 inline-block">
+                                Features
+                            </button>
+                        </li>
+                        <li>
+                            <button onclick="scrollToSection('how-it-works')" class="hover:text-white transition-colors hover:translate-x-1 inline-block">
+                                How It Works
+                            </button>
+                        </li>
+                        <li>
+                            <a href="#" class="hover:text-white transition-colors hover:translate-x-1 inline-block">
+                                Pricing
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="hover:text-white transition-colors hover:translate-x-1 inline-block">
+                                Mobile App
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-bold mb-6 text-lg">Support</h4>
+                    <ul class="space-y-3 text-gray-400">
+                        <li>
+                            <a href="#" class="hover:text-white transition-colors hover:translate-x-1 inline-block">
+                                Help Center
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="hover:text-white transition-colors hover:translate-x-1 inline-block">
+                                Crisis Resources
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="hover:text-white transition-colors hover:translate-x-1 inline-block">
+                                Community Guidelines
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="hover:text-white transition-colors hover:translate-x-1 inline-block">
+                                Contact Support
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-bold mb-6 text-lg">Legal</h4>
+                    <ul class="space-y-3 text-gray-400">
+                        <li>
+                            <a href="#" class="hover:text-white transition-colors hover:translate-x-1 inline-block">
+                                Privacy Policy
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="hover:text-white transition-colors hover:translate-x-1 inline-block">
+                                Terms of Service
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="hover:text-white transition-colors hover:translate-x-1 inline-block">
+                                Cookie Policy
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="hover:text-white transition-colors hover:translate-x-1 inline-block">
+                                Accessibility
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-800 dark:border-gray-700 mt-12 pt-8">
+                <div class="flex flex-col md:flex-row justify-between items-center">
+                    <p class="text-gray-400 mb-4 md:mb-0">
+                        © 2024 AuraRecovery. All rights reserved. Made with ❤️ for global communities.
+                    </p>
+                    <div class="flex items-center space-x-4">
+                        <span class="text-gray-400">Available in:</span>
+                        <select class="bg-gray-800 dark:bg-gray-700 text-white rounded-lg px-3 py-2 border border-gray-700 dark:border-gray-600 focus:border-blue-500 focus:outline-none transition-colors duration-200">
+                            <option>🇺🇸 English</option>
+                            <option>🇪🇸 Español</option>
+                            <option>🇧🇷 Português</option>
+                            <option>🇮🇳 हिंदी</option>
+                            <option>🇸🇦 العربية</option>
+                            <option>🇫🇷 Français</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+</div>
+
+<script>
+    function toggleMobileMenu() {
+        const mobileMenu = document.getElementById('mobile-menu');
+        const menuIcon = document.getElementById('menu-icon');
+        const closeIcon = document.getElementById('close-icon');
+        
+        mobileMenu.classList.toggle('hidden');
+        menuIcon.classList.toggle('hidden');
+        closeIcon.classList.toggle('hidden');
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,459 @@
+{% extends "base.html" %}
+
+{% block title %}Support Groups - AuraRecovery{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-aura-gray dark:bg-gray-900 transition-colors duration-300">
+    <!-- Header -->
+    <header class="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl shadow-sm border-b border-gray-200/20 dark:border-gray-700/20">
+        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <a href="{{ url_for('progress') }}" class="flex items-center space-x-2 text-gray-600 dark:text-gray-300 hover:text-aura-blue transition-colors">
+                    <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                    <span>Back to Dashboard</span>
+                </a>
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 bg-aura-blue rounded-lg flex items-center justify-center shadow-lg">
+                        <i data-lucide="heart" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <span class="text-xl font-bold text-aura-charcoal dark:text-white">AuraRecovery</span>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                <button onclick="toggleDarkMode()" class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-300 flex items-center justify-center">
+                    <i data-lucide="sun" class="w-5 h-5 text-yellow-500 hidden dark:block"></i>
+                    <i data-lucide="moon" class="w-5 h-5 text-gray-600 block dark:hidden"></i>
+                </button>
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 bg-aura-green rounded-full flex items-center justify-center">
+                        <span class="text-sm font-bold text-aura-charcoal">{{ current_user.first_name[0] }}{{ current_user.last_name[0] }}</span>
+                    </div>
+                    <span class="text-sm font-medium text-aura-charcoal dark:text-white">{{ current_user.first_name }} {{ current_user.last_name }}</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-4 py-8">
+        <!-- Page Header -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h1 class="text-3xl font-bold text-aura-charcoal dark:text-white mb-2">Support Groups</h1>
+                    <p class="text-gray-600 dark:text-gray-300">
+                        Find and join support groups in your area or online
+                    </p>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button onclick="showCreateGroupModal()" class="bg-aura-green hover:bg-aura-green-dark text-aura-charcoal px-6 py-3 rounded-lg font-semibold transition-colors">
+                        <i data-lucide="plus" class="w-5 h-5 mr-2 inline"></i>
+                        Create Group
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search and Filters -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+                <!-- Location Search -->
+                <div class="lg:col-span-2">
+                    <label class="block text-sm font-medium text-aura-charcoal dark:text-gray-200 mb-2">Location</label>
+                    <div class="relative">
+                        <i data-lucide="map-pin" class="absolute left-3 top-3 h-4 w-4 text-gray-400"></i>
+                        <input
+                            type="text"
+                            id="locationInput"
+                            placeholder="Enter city, state, or 'online'"
+                            class="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:border-aura-blue focus:ring-2 focus:ring-aura-blue/20 bg-white dark:bg-gray-700 text-aura-charcoal dark:text-white"
+                        />
+                    </div>
+                </div>
+
+                <!-- Addiction Type Filter -->
+                <div>
+                    <label class="block text-sm font-medium text-aura-charcoal dark:text-gray-200 mb-2">Focus</label>
+                    <select id="addictionFilter" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:border-aura-blue bg-white dark:bg-gray-700 text-aura-charcoal dark:text-white">
+                        <option value="all">All Types</option>
+                        <option value="alcohol">Alcohol</option>
+                        <option value="drugs">Drugs</option>
+                        <option value="gambling">Gambling</option>
+                        <option value="general">General</option>
+                    </select>
+                </div>
+
+                <!-- Meeting Type Filter -->
+                <div>
+                    <label class="block text-sm font-medium text-aura-charcoal dark:text-gray-200 mb-2">Meeting Type</label>
+                    <select id="meetingTypeFilter" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:border-aura-blue bg-white dark:bg-gray-700 text-aura-charcoal dark:text-white">
+                        <option value="all">All Types</option>
+                        <option value="in-person">In-Person</option>
+                        <option value="online">Online</option>
+                        <option value="hybrid">Hybrid</option>
+                    </select>
+                </div>
+
+                <!-- Language Filter -->
+                <div>
+                    <label class="block text-sm font-medium text-aura-charcoal dark:text-gray-200 mb-2">Language</label>
+                    <select id="languageFilter" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:border-aura-blue bg-white dark:bg-gray-700 text-aura-charcoal dark:text-white">
+                        <option value="all">All Languages</option>
+                        <option value="english">English</option>
+                        <option value="spanish">Español</option>
+                        <option value="portuguese">Português</option>
+                        <option value="hindi">हिंदी</option>
+                        <option value="arabic">العربية</option>
+                        <option value="french">Français</option>
+                    </select>
+                </div>
+
+                <!-- Search Button -->
+                <div class="flex items-end">
+                    <button onclick="searchGroups()" class="w-full bg-aura-blue hover:bg-aura-blue-dark text-white px-6 py-3 rounded-lg transition-colors font-medium">
+                        <i data-lucide="search" class="w-4 h-4 mr-2 inline"></i>
+                        Search
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- My Groups Section -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold text-aura-charcoal dark:text-white mb-4 flex items-center">
+                <i data-lucide="users" class="w-6 h-6 mr-2 text-aura-blue"></i>
+                My Groups
+            </h2>
+            <div id="myGroupsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- My groups will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Search Results -->
+        <div>
+            <h2 class="text-2xl font-bold text-aura-charcoal dark:text-white mb-6 flex items-center">
+                <i data-lucide="search" class="w-6 h-6 mr-2 text-aura-blue"></i>
+                Available Groups
+                <span id="resultsCount" class="ml-2 text-lg text-gray-600 dark:text-gray-400"></span>
+            </h2>
+
+            <div id="searchResults" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Search results will be loaded here -->
+            </div>
+
+            <div id="noResults" class="text-center py-12 hidden">
+                <div class="w-24 h-24 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="users" class="w-12 h-12 text-gray-400"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-600 dark:text-gray-400 mb-2">No groups found</h3>
+                <p class="text-gray-500 dark:text-gray-500">Try adjusting your search criteria or create a new group</p>
+                <button onclick="showCreateGroupModal()" class="mt-4 bg-aura-blue hover:bg-aura-blue-dark text-white px-6 py-2 rounded-lg transition-colors">
+                    Create New Group
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create Group Modal -->
+<div id="createGroupModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-2xl font-bold text-aura-charcoal dark:text-white">Create Support Group</h3>
+                <button onclick="hideCreateGroupModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+
+            <form id="createGroupForm" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-aura-charcoal dark:text-gray-200 mb-2">Group Name</label>
+                        <input type="text" name="name" required class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:border-aura-blue bg-white dark:bg-gray-700 text-aura-charcoal dark:text-white" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-aura-charcoal dark:text-gray-200 mb-2">Group Type</label>
+                        <select name="group_type" required class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:border-aura-blue bg-white dark:bg-gray-700 text-aura-charcoal dark:text-white">
+                            <option value="">Select Type</option>
+                            <option value="AA">Alcoholics Anonymous</option>
+                            <option value="NA">Narcotics Anonymous</option>
+                            <option value="GA">Gamblers Anonymous</option>
+                            <option value="SMART">SMART Recovery</option>
+                            <option value="Open">Open Support</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-aura-charcoal dark:text-gray-200 mb-2">Description</label>
+                    <textarea name="description" rows="3" required class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:border-aura-blue bg-white dark:bg-gray-700 text-aura-charcoal dark:text-white"></textarea>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-aura-charcoal dark:text-gray-200 mb-2">Addiction Focus</label>
+                        <select name="addiction_focus" required class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:border-aura-blue bg-white dark:bg-gray-700 text-aura-charcoal dark:text-white">
+                            <option value="general">General</option>
+                            <option value="alcohol">Alcohol</option>
+                            <option value="drugs">Drugs</option>
+                            <option value="gambling">Gambling</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-aura-charcoal dark:text-gray-200 mb-2">Meeting Type</label>
+                        <select name="meeting_type" required class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:border-aura-blue bg-white dark:bg-gray-700 text-aura-charcoal dark:text-white">
+                            <option value="online">Online</option>
+                            <option value="in-person">In-Person</option>
+                            <option value="hybrid">Hybrid</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-aura-charcoal dark:text-gray-200 mb-2">Language</label>
+                        <select name="language" required class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:border-aura-blue bg-white dark:bg-gray-700 text-aura-charcoal dark:text-white">
+                            <option value="english">English</option>
+                            <option value="spanish">Español</option>
+                            <option value="portuguese">Português</option>
+                            <option value="hindi">हिंदी</option>
+                            <option value="arabic">العربية</option>
+                            <option value="french">Français</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex justify-end space-x-4">
+                    <button type="button" onclick="hideCreateGroupModal()" class="px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-6 py-3 bg-aura-blue hover:bg-aura-blue-dark text-white rounded-lg transition-colors">
+                        Create Group
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    let allGroups = [];
+
+    function showCreateGroupModal() {
+        document.getElementById('createGroupModal').classList.remove('hidden');
+    }
+
+    function hideCreateGroupModal() {
+        document.getElementById('createGroupModal').classList.add('hidden');
+        document.getElementById('createGroupForm').reset();
+    }
+
+    async function searchGroups() {
+        const location = document.getElementById('locationInput').value;
+        const addictionType = document.getElementById('addictionFilter').value;
+        const meetingType = document.getElementById('meetingTypeFilter').value;
+        const language = document.getElementById('languageFilter').value;
+
+        const params = new URLSearchParams({
+            location: location,
+            addiction_type: addictionType,
+            meeting_type: meetingType,
+            language: language,
+            radius: 50
+        });
+
+        try {
+            const response = await fetch(`/api/support-groups/search?${params}`);
+            const data = await response.json();
+            allGroups = data.groups;
+            displayGroups(allGroups);
+        } catch (error) {
+            console.error('Error searching groups:', error);
+            showFlashMessage('Error searching groups', 'error');
+        }
+    }
+
+    function displayGroups(groups) {
+        const container = document.getElementById('searchResults');
+        const noResults = document.getElementById('noResults');
+        const resultsCount = document.getElementById('resultsCount');
+
+        if (groups.length === 0) {
+            container.innerHTML = '';
+            noResults.classList.remove('hidden');
+            resultsCount.textContent = '';
+            return;
+        }
+
+        noResults.classList.add('hidden');
+        resultsCount.textContent = `(${groups.length})`;
+
+        container.innerHTML = groups.map(group => `
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-200 dark:border-gray-700 group">
+                <div class="p-6">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 bg-gradient-to-br from-aura-blue to-aura-blue-dark rounded-xl flex items-center justify-center shadow-lg">
+                                <i data-lucide="users" class="w-6 h-6 text-white"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold text-aura-charcoal dark:text-white group-hover:text-aura-blue transition-colors">
+                                    ${group.name}
+                                </h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">
+                                    ${group.group_type} • ${group.language.charAt(0).toUpperCase() + group.language.slice(1)}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="bg-${getMeetingTypeColor(group.meeting_type)}/10 text-${getMeetingTypeColor(group.meeting_type)} px-2 py-1 rounded-full text-xs">
+                                ${group.meeting_type.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                            </div>
+                            ${group.distance !== null && group.distance !== undefined ? 
+                                `<div class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-1 rounded-full text-xs">
+                                    ${group.distance < 1 ? '<1' : Math.round(group.distance)} km
+                                </div>` : ''
+                            }
+                        </div>
+                    </div>
+
+                    <p class="text-gray-700 dark:text-gray-300 mb-4 line-clamp-2">
+                        ${group.description}
+                    </p>
+
+                    <div class="space-y-2 mb-4">
+                        ${group.city ? `
+                            <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                                <i data-lucide="map-pin" class="w-4 h-4 mr-2"></i>
+                                ${group.city}, ${group.state}, ${group.country}
+                            </div>
+                        ` : ''}
+                        <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                            <i data-lucide="calendar" class="w-4 h-4 mr-2"></i>
+                            ${group.meeting_days.join(', ')} at ${group.meeting_time}
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                            <i data-lucide="user" class="w-4 h-4 mr-2"></i>
+                            ${group.member_count}/${group.max_members} members
+                        </div>
+                        ${group.facilitator_name ? `
+                            <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                                <i data-lucide="user-check" class="w-4 h-4 mr-2"></i>
+                                Facilitated by ${group.facilitator_name}
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <div class="bg-aura-blue/10 text-aura-blue px-2 py-1 rounded-full text-xs">
+                                ${group.addiction_focus.charAt(0).toUpperCase() + group.addiction_focus.slice(1)}
+                            </div>
+                        </div>
+
+                        ${getJoinButton(group)}
+                    </div>
+                </div>
+            </div>
+        `).join('');
+
+        // Re-initialize Lucide icons
+        lucide.createIcons();
+    }
+
+    function getMeetingTypeColor(type) {
+        switch(type) {
+            case 'online': return 'blue';
+            case 'in-person': return 'green';
+            case 'hybrid': return 'purple';
+            default: return 'gray';
+        }
+    }
+
+    function getJoinButton(group) {
+        if (group.user_membership_status === 'approved') {
+            return `<a href="/support-groups/${group.id}" class="bg-aura-green hover:bg-aura-green-dark text-aura-charcoal px-4 py-2 rounded-lg transition-colors text-sm font-medium">
+                <i data-lucide="message-circle" class="w-4 h-4 mr-1 inline"></i>
+                Open Chat
+            </a>`;
+        } else if (group.user_membership_status === 'pending') {
+            return `<div class="bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-300 px-4 py-2 rounded-lg text-sm">
+                <i data-lucide="clock" class="w-4 h-4 mr-1 inline"></i>
+                Pending Approval
+            </div>`;
+        } else {
+            return `<button onclick="joinGroup(${group.id})" class="bg-aura-blue hover:bg-aura-blue-dark text-white px-4 py-2 rounded-lg transition-colors text-sm font-medium">
+                <i data-lucide="user-plus" class="w-4 h-4 mr-1 inline"></i>
+                Join Group
+            </button>`;
+        }
+    }
+
+    async function joinGroup(groupId) {
+        try {
+            const response = await fetch(`/api/support-groups/${groupId}/join`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                showFlashMessage(data.message, 'success');
+                searchGroups(); // Refresh the groups
+            } else {
+                showFlashMessage(data.message, 'error');
+            }
+        } catch (error) {
+            console.error('Error joining group:', error);
+            showFlashMessage('Error joining group', 'error');
+        }
+    }
+
+    document.getElementById('createGroupForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const data = Object.fromEntries(formData.entries());
+        
+        try {
+            const response = await fetch('/api/support-groups', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                showFlashMessage('Group created successfully!', 'success');
+                hideCreateGroupModal();
+                searchGroups(); // Refresh the groups
+            } else {
+                showFlashMessage(result.message, 'error');
+            }
+        } catch (error) {
+            showFlashMessage('Error creating group', 'error');
+        }
+    });
+
+    // Load groups on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        searchGroups();
+    });
+
+    // CSS for line clamping
+    const style = document.createElement('style');
+    style.textContent = `
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+    `;
+    document.head.appendChild(style);
+</script>
+{% endblock %}

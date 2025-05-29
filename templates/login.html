@@ -1,0 +1,267 @@
+{% extends "base.html" %}
+
+{% block title %}Sign In - AuraRecovery{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-aura-gray dark:bg-gray-900 transition-colors duration-300">
+    <!-- Header -->
+    <header class="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl shadow-sm border-b border-gray-200/20 dark:border-gray-700/20">
+        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <a href="{{ url_for('index') }}" class="flex items-center space-x-3">
+                <i data-lucide="arrow-left" class="w-5 h-5 text-gray-600 dark:text-gray-300"></i>
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 bg-aura-blue rounded-lg flex items-center justify-center shadow-lg">
+                        <i data-lucide="heart" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <span class="text-xl font-bold text-aura-charcoal dark:text-white">AuraRecovery</span>
+                </div>
+            </a>
+
+            <div class="flex items-center space-x-4">
+                <button onclick="toggleDarkMode()" class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center">
+                    <i data-lucide="sun" class="w-5 h-5 text-yellow-500 hidden dark:block"></i>
+                    <i data-lucide="moon" class="w-5 h-5 text-gray-600 block dark:hidden"></i>
+                </button>
+                <a href="{{ url_for('get_started') }}" class="bg-aura-blue hover:bg-aura-blue-dark text-white px-4 py-2 rounded-lg transition-colors">
+                    Get Started
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex min-h-[calc(100vh-80px)]">
+        <!-- Left Side - Login Form -->
+        <div class="flex-1 flex items-center justify-center p-8">
+            <div class="w-full max-w-md">
+                <div class="text-center mb-8">
+                    <h1 class="text-3xl font-bold text-aura-charcoal dark:text-white mb-2">Welcome Back</h1>
+                    <p class="text-gray-600 dark:text-gray-300">
+                        Sign in to continue your recovery journey with AuraRecovery
+                    </p>
+                </div>
+
+                <div class="border border-gray-200 dark:border-gray-700 shadow-xl bg-white dark:bg-gray-800 rounded-lg">
+                    <div class="p-6">
+                        <h2 class="text-2xl text-center text-aura-charcoal dark:text-white mb-6">Sign In</h2>
+                        
+                        <form id="loginForm" class="space-y-6">
+                            <div class="space-y-4">
+                                <div class="space-y-2">
+                                    <label for="email" class="text-aura-charcoal dark:text-gray-200 font-medium">
+                                        Email Address
+                                    </label>
+                                    <div class="relative">
+                                        <i data-lucide="mail" class="absolute left-3 top-3 h-4 w-4 text-gray-400"></i>
+                                        <input
+                                            id="email"
+                                            type="email"
+                                            placeholder="Enter your email"
+                                            required
+                                            class="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:border-aura-blue focus:ring-2 focus:ring-aura-blue/20 bg-white dark:bg-gray-700 text-aura-charcoal dark:text-white transition-colors"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label for="password" class="text-aura-charcoal dark:text-gray-200 font-medium">
+                                        Password
+                                    </label>
+                                    <div class="relative">
+                                        <i data-lucide="lock" class="absolute left-3 top-3 h-4 w-4 text-gray-400"></i>
+                                        <input
+                                            id="password"
+                                            type="password"
+                                            placeholder="Enter your password"
+                                            required
+                                            class="w-full pl-10 pr-10 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:border-aura-blue focus:ring-2 focus:ring-aura-blue/20 bg-white dark:bg-gray-700 text-aura-charcoal dark:text-white transition-colors"
+                                        />
+                                        <button
+                                            type="button"
+                                            onclick="togglePasswordVisibility()"
+                                            class="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                                        >
+                                            <i data-lucide="eye" id="eye-icon" class="h-4 w-4"></i>
+                                            <i data-lucide="eye-off" id="eye-off-icon" class="h-4 w-4 hidden"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-2">
+                                        <input
+                                            id="remember"
+                                            type="checkbox"
+                                            class="w-4 h-4 text-aura-blue border-gray-300 rounded focus:ring-aura-blue"
+                                        />
+                                        <label for="remember" class="text-sm text-gray-600 dark:text-gray-300">
+                                            Remember me
+                                        </label>
+                                    </div>
+                                    <a href="#" class="text-sm text-aura-blue hover:text-aura-blue-dark transition-colors">
+                                        Forgot password?
+                                    </a>
+                                </div>
+                            </div>
+
+                            <button
+                                type="submit"
+                                class="w-full bg-aura-blue hover:bg-aura-blue-dark text-white py-3 text-lg font-semibold rounded-lg transition-colors"
+                            >
+                                Sign In
+                            </button>
+                        </form>
+
+                        <div class="mt-6 text-center">
+                            <p class="text-sm text-gray-600 dark:text-gray-300">
+                                Don't have an account? 
+                                <a href="{{ url_for('get_started') }}" class="text-aura-blue hover:text-aura-blue-dark font-medium">
+                                    Get started for free
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Trust Indicators -->
+                <div class="mt-8 text-center">
+                    <div class="flex items-center justify-center space-x-6 text-sm text-gray-500 dark:text-gray-400">
+                        <div class="flex items-center space-x-1">
+                            <i data-lucide="shield" class="w-4 h-4 text-aura-green"></i>
+                            <span>Secure Login</span>
+                        </div>
+                        <div class="flex items-center space-x-1">
+                            <i data-lucide="globe" class="w-4 h-4 text-aura-green"></i>
+                            <span>Global Support</span>
+                        </div>
+                        <div class="flex items-center space-x-1">
+                            <i data-lucide="users" class="w-4 h-4 text-aura-green"></i>
+                            <span>25K+ Users</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side - Testimonial/Info -->
+        <div class="hidden lg:flex flex-1 bg-gradient-to-br from-aura-blue/10 via-aura-green/10 to-aura-blue/5 dark:from-aura-blue/5 dark:via-aura-green/5 dark:to-aura-blue/5 items-center justify-center p-8">
+            <div class="max-w-md text-center">
+                <div class="w-20 h-20 bg-aura-blue rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                    <i data-lucide="heart" class="w-10 h-10 text-white"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-aura-charcoal dark:text-white mb-4">
+                    Welcome Back to Your Recovery Journey
+                </h2>
+                <p class="text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">
+                    Continue building healthy habits, connecting with your support network, and celebrating your progress with AuraRecovery.
+                </p>
+                <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-lg p-6">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-12 h-12 bg-aura-green rounded-full flex items-center justify-center">
+                            <span class="text-lg">🇧🇷</span>
+                        </div>
+                        <div class="text-left">
+                            <p class="font-semibold text-aura-charcoal dark:text-white">Maria S.</p>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">São Paulo, Brazil</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-700 dark:text-gray-300 italic">
+                        "Logging in each day reminds me of how far I've come. AuraRecovery has been my constant companion."
+                    </p>
+                    <div class="flex items-center mt-4">
+                        <div class="flex space-x-1">
+                            <i data-lucide="check-circle" class="w-4 h-4 text-aura-green"></i>
+                            <i data-lucide="check-circle" class="w-4 h-4 text-aura-green"></i>
+                            <i data-lucide="check-circle" class="w-4 h-4 text-aura-green"></i>
+                            <i data-lucide="check-circle" class="w-4 h-4 text-aura-green"></i>
+                            <i data-lucide="check-circle" class="w-4 h-4 text-aura-green"></i>
+                        </div>
+                        <span class="ml-2 text-sm text-gray-600 dark:text-gray-400">8 months in recovery</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function togglePasswordVisibility() {
+        const passwordInput = document.getElementById('password');
+        const eyeIcon = document.getElementById('eye-icon');
+        const eyeOffIcon = document.getElementById('eye-off-icon');
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            eyeIcon.classList.add('hidden');
+            eyeOffIcon.classList.remove('hidden');
+        } else {
+            passwordInput.type = 'password';
+            eyeIcon.classList.remove('hidden');
+            eyeOffIcon.classList.add('hidden');
+        }
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const remember = document.getElementById('remember').checked;
+        
+        // Show loading state
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalBtnText = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 mr-2 inline animate-spin"></i> Signing In...';
+        
+        try {
+            const response = await fetch('{{ url_for("login") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: email,
+                    password: password,
+                    remember: remember
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                showFlashMessage('Login successful! Redirecting...', 'success');
+                setTimeout(() => {
+                    window.location.href = data.redirect;
+                }, 1000);
+            } else {
+                showFlashMessage(data.message || 'Invalid email or password', 'error');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            showFlashMessage('An error occurred. Please try again.', 'error');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnText;
+        }
+    });
+
+    // Add this function to show flash messages
+    function showFlashMessage(message, type) {
+        const flashContainer = document.createElement('div');
+        flashContainer.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg ${
+            type === 'success' ? 'bg-aura-green text-white' : 'bg-red-500 text-white'
+        }`;
+        flashContainer.innerHTML = message;
+        document.body.appendChild(flashContainer);
+        
+        // Remove after 5 seconds
+        setTimeout(() => {
+            flashContainer.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+            setTimeout(() => {
+                document.body.removeChild(flashContainer);
+            }, 500);
+        }, 5000);
+    }
+</script>
+{% endblock %}
