@@ -276,9 +276,10 @@ def create_default_milestones(user):
 
 def create_educational_resources():
     resources = [
+        # Alcohol Addiction Resources
         {
             'title': 'The Recovery Show Podcast',
-            'description': 'Weekly discussions about addiction recovery, featuring real stories and expert insights.',
+            'description': 'Weekly discussions about alcohol addiction recovery, featuring real stories and expert insights.',
             'resource_type': 'podcast',
             'addiction_type': 'alcohol',
             'url': 'https://therecoveryshow.com',
@@ -304,6 +305,143 @@ def create_educational_resources():
             'url': 'https://example.com/alcohol-guide',
             'author': 'Dr. Sarah Johnson',
             'difficulty_level': 'intermediate'
+        },
+        
+        # Drug Addiction Resources
+        {
+            'title': 'The Science of Addiction',
+            'description': 'In-depth exploration of how drugs affect the brain and body.',
+            'resource_type': 'video',
+            'addiction_type': 'drugs',
+            'url': 'https://example.com/science-addiction',
+            'author': 'Dr. Michael Chen',
+            'duration': '30 minutes',
+            'difficulty_level': 'intermediate',
+            'featured': True
+        },
+        {
+            'title': 'Recovery Roadmap',
+            'description': 'Step-by-step guide for drug addiction recovery and relapse prevention.',
+            'resource_type': 'ebook',
+            'addiction_type': 'drugs',
+            'author': 'Recovery Experts Team',
+            'difficulty_level': 'beginner'
+        },
+        
+        # Gambling Addiction Resources
+        {
+            'title': 'Breaking Free from Gambling',
+            'description': 'Practical strategies for overcoming gambling addiction.',
+            'resource_type': 'book',
+            'addiction_type': 'gambling',
+            'author': 'Dr. James Wilson',
+            'difficulty_level': 'beginner',
+            'featured': True
+        },
+        {
+            'title': 'Gambling Addiction Recovery Podcast',
+            'description': 'Weekly episodes featuring success stories and expert advice.',
+            'resource_type': 'podcast',
+            'addiction_type': 'gambling',
+            'url': 'https://example.com/gambling-podcast',
+            'duration': '60 minutes',
+            'difficulty_level': 'all'
+        },
+        
+        # Internet/Social Media Addiction
+        {
+            'title': 'Digital Wellbeing Guide',
+            'description': 'Comprehensive guide to managing screen time and digital addiction.',
+            'resource_type': 'ebook',
+            'addiction_type': 'internet',
+            'author': 'Digital Wellness Institute',
+            'difficulty_level': 'beginner',
+            'featured': True
+        },
+        {
+            'title': 'Social Media Detox Challenge',
+            'description': '30-day program to break free from social media addiction.',
+            'resource_type': 'course',
+            'addiction_type': 'internet',
+            'duration': '30 days',
+            'difficulty_level': 'beginner'
+        },
+        
+        # Food Addiction Resources
+        {
+            'title': 'Understanding Food Addiction',
+            'description': 'Scientific approach to understanding and overcoming food addiction.',
+            'resource_type': 'book',
+            'addiction_type': 'food',
+            'author': 'Dr. Lisa Thompson',
+            'difficulty_level': 'intermediate',
+            'featured': True
+        },
+        {
+            'title': 'Healthy Relationship with Food',
+            'description': 'Workshop series on developing a healthy relationship with food.',
+            'resource_type': 'course',
+            'addiction_type': 'food',
+            'duration': '8 weeks',
+            'difficulty_level': 'beginner'
+        },
+        
+        # Smoking/Nicotine Addiction
+        {
+            'title': 'Quit Smoking Successfully',
+            'description': 'Evidence-based methods for quitting smoking and staying smoke-free.',
+            'resource_type': 'course',
+            'addiction_type': 'smoking',
+            'author': 'Dr. Robert Martinez',
+            'duration': '6 weeks',
+            'difficulty_level': 'beginner',
+            'featured': True
+        },
+        {
+            'title': 'Nicotine Addiction Recovery',
+            'description': 'Understanding nicotine addiction and effective treatment methods.',
+            'resource_type': 'article',
+            'addiction_type': 'smoking',
+            'url': 'https://example.com/nicotine-recovery',
+            'difficulty_level': 'intermediate'
+        },
+        
+        # Gaming Addiction
+        {
+            'title': 'Gaming Addiction Recovery Guide',
+            'description': 'Comprehensive guide to overcoming gaming addiction.',
+            'resource_type': 'ebook',
+            'addiction_type': 'gaming',
+            'author': 'Gaming Recovery Institute',
+            'difficulty_level': 'beginner',
+            'featured': True
+        },
+        {
+            'title': 'Healthy Gaming Habits',
+            'description': 'Workshop on developing healthy gaming habits and boundaries.',
+            'resource_type': 'workshop',
+            'addiction_type': 'gaming',
+            'duration': '2 hours',
+            'difficulty_level': 'beginner'
+        },
+        
+        # General Recovery Resources
+        {
+            'title': 'The Recovery Journey',
+            'description': 'Comprehensive guide to addiction recovery for all types of addictions.',
+            'resource_type': 'book',
+            'addiction_type': 'general',
+            'author': 'Recovery Experts Team',
+            'difficulty_level': 'all',
+            'featured': True
+        },
+        {
+            'title': 'Mindfulness in Recovery',
+            'description': 'How mindfulness practices can support addiction recovery.',
+            'resource_type': 'course',
+            'addiction_type': 'general',
+            'duration': '4 weeks',
+            'difficulty_level': 'beginner'
         }
     ]
     
@@ -312,6 +450,8 @@ def create_educational_resources():
         if not existing:
             resource = EducationalResource(**resource_data)
             db.session.add(resource)
+    
+    db.session.commit()
 
 def create_sample_support_groups():
     """Create sample support groups"""
