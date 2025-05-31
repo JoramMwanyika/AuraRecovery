@@ -1119,6 +1119,115 @@ def change_password():
     
     return jsonify({'success': True, 'message': 'Password updated successfully'})
 
+
+# NEW ROUTE: Group Management Dashboard
+@app.route('/manage-group/<int:group_id>')
+@login_required
+def manage_group(group_id):
+    group = SupportGroup.query.get_or_404(group_id)
+    
+    # Check if user is facilitator or moderator
+    membership = GroupMembership.query.filter_by(
+        user_id=current_user.id,
+        group_id=group_id,
+        status='approved'
+    ).first()
+    
+    if not membership or membership.role not in ['facilitator', 'moderator']:
+        flash('You do not have permission to manage this group.', 'error')
+        return redirect(url_for('support_groups'))
+    
+    # Get pending membership requests
+    pending_requests = GroupMembership.query.filter_by(
+        group_id=group_id,
+        status='pending'
+    ).all()
+    
+    # Get all approved members
+    approved_members = GroupMembership.query.filter_by(
+        group_id=group_id,
+        status='approved'
+    ).all()
+    
+    return render_template('manage_group.html',
+                         group=group,
+                         pending_requests=pending_requests,
+                         approved_members=approved_members,
+                         user_role=membership.role)
+
+# NEW ROUTE: Approve Membership
+@app.route('/api/membership/<int:membership_id>/approve', methods=['POST'])
+@login_required
+def approve_membership(membership_id):
+    membership = GroupMembership.query.get_or_404(membership_id)
+    
+    # Check if current user can approve (facilitator or moderator of the group)
+    user_membership = GroupMembership.query.filter_by(
+        user_id=current_user.id,
+        group_id=membership.group_id,
+        status='approved'
+    ).first()
+    
+    if not user_membership or user_membership.role not in ['facilitator', 'moderator']:
+        return jsonify({'success': False, 'message': 'Insufficient permissions'})
+    
+    # Approve the membership
+    membership.status = 'approved'
+    membership.approved_at = datetime.utcnow()
+    
+    db.session.commit()
+    
+    return jsonify({'success': True, 'message': 'Membership approved successfully'})
+
+# NEW ROUTE: Reject Membership
+@app.route('/api/membership/<int:membership_id>/reject', methods=['POST'])
+@login_required
+def reject_membership(membership_id):
+    membership = GroupMembership.query.get_or_404(membership_id)
+    
+    # Check if current user can reject (facilitator or moderator of the group)
+    user_membership = GroupMembership.query.filter_by(
+        user_id=current_user.id,
+        group_id=membership.group_id,
+        status='approved'
+    ).first()
+    
+    if not user_membership or user_membership.role not in ['facilitator', 'moderator']:
+        return jsonify({'success': False, 'message': 'Insufficient permissions'})
+    
+    # Reject the membership
+    membership.status = 'rejected'
+    
+    db.session.commit()
+    
+    return jsonify({'success': True, 'message': 'Membership rejected'})
+
+# NEW ROUTE: Remove Member
+@app.route('/api/membership/<int:membership_id>/remove', methods=['POST'])
+@login_required
+def remove_member(membership_id):
+    membership = GroupMembership.query.get_or_404(membership_id)
+    
+    # Check if current user can remove members (facilitator only)
+    user_membership = GroupMembership.query.filter_by(
+        user_id=current_user.id,
+        group_id=membership.group_id,
+        status='approved'
+    ).first()
+    
+    if not user_membership or user_membership.role != 'facilitator':
+        return jsonify({'success': False, 'message': 'Only facilitators can remove members'})
+    
+    # Don't allow removing other facilitators
+    if membership.role == 'facilitator' and membership.user_id != current_user.id:
+        return jsonify({'success': False, 'message': 'Cannot remove other facilitators'})
+    
+    # Remove the membership
+    db.session.delete(membership)
+    db.session.commit()
+    
+    return jsonify({'success': True, 'message': 'Member removed successfully'})
+
 # Add a custom filter for JSON parsing in templates
 @app.template_filter('from_json')
 def from_json_filter(value):

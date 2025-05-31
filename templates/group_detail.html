@@ -22,6 +22,12 @@
 
             <div class="flex items-center space-x-4">
                 {% if membership.role in ['facilitator', 'moderator'] %}
+                <a href="{{ url_for('manage_group', group_id=group.id) }}" class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg transition-colors font-medium">
+                    <i data-lucide="settings" class="w-4 h-4 mr-2 inline"></i>
+                    Manage Group
+                </a>
+                {% endif %}
+                {% if membership.role in ['facilitator', 'moderator'] %}
                 <button onclick="showCreateSessionModal()" class="bg-aura-green hover:bg-aura-green-dark text-aura-charcoal px-4 py-2 rounded-lg transition-colors font-medium">
                     <i data-lucide="video" class="w-4 h-4 mr-2 inline"></i>
                     Schedule Session
