@@ -33,6 +33,15 @@
                     <span class="text-sm font-medium text-aura-charcoal dark:text-white">{{ current_user.first_name }} {{ current_user.last_name }}</span>
                 </div>
             </div>
+
+            <a href="{{ url_for('ai_dashboard') }}" class="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 hover:from-blue-600 hover:via-purple-600 hover:to-pink-600 text-white px-4 py-2 rounded-lg shadow-lg transition-colors font-medium flex items-center">
+                <i data-lucide="brain" class="w-4 h-4 mr-2 inline"></i>
+                AI Dashboard
+            </a>
+            <a href="{{ url_for('ai_therapist') }}" class="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white px-4 py-2 rounded-lg shadow-lg transition-colors font-medium flex items-center">
+                <i data-lucide="message-circle" class="w-4 h-4 mr-2 inline"></i>
+                AI Therapist
+            </a>
         </div>
     </header>
 

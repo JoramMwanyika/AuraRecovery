@@ -10,20 +10,26 @@ import uuid
 import requests
 from urllib.parse import urlencode
 
+# Import AI services
+from ai_service import AIService
+
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your-secret-key-here'
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-here')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///aura_recovery.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Initialize SQLAlchemy with the app
+db = SQLAlchemy(app)
+
+# Initialize login manager
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
 
 # Zoom/Google Meet Integration Settings
 app.config['ZOOM_API_KEY'] = os.environ.get('ZOOM_API_KEY', 'your-zoom-api-key')
 app.config['ZOOM_API_SECRET'] = os.environ.get('ZOOM_API_SECRET', 'your-zoom-api-secret')
 app.config['GOOGLE_MEET_API_KEY'] = os.environ.get('GOOGLE_MEET_API_KEY', 'your-google-api-key')
-
-db = SQLAlchemy(app)
-login_manager = LoginManager()
-login_manager.init_app(app)
-login_manager.login_view = 'login'
 
 # Database Models
 class User(UserMixin, db.Model):
@@ -53,6 +59,8 @@ class User(UserMixin, db.Model):
     journal_entries = db.relationship('JournalEntry', backref='user', lazy=True)
     group_memberships = db.relationship('GroupMembership', backref='user', lazy=True)
     chat_messages = db.relationship('ChatMessage', backref='user', lazy=True)
+    ai_chat_sessions = db.relationship('AIChatSession', backref='user', lazy=True)
+    risk_assessments = db.relationship('RelapseRiskAssessment', backref='user', lazy=True)
 
 class MoodEntry(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -85,6 +93,39 @@ class JournalEntry(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     content = db.Column(db.Text, nullable=False)
     mood_id = db.Column(db.Integer, db.ForeignKey('mood_entry.id'))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class AIChatSession(db.Model):
+    """Store AI chat conversations"""
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    session_id = db.Column(db.String(100), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relationship
+    messages = db.relationship('AIChatMessage', backref='session', lazy=True)
+
+class AIChatMessage(db.Model):
+    """Store individual AI chat messages"""
+    id = db.Column(db.Integer, primary_key=True)
+    session_id = db.Column(db.Integer, db.ForeignKey('ai_chat_session.id'), nullable=False)
+    message = db.Column(db.Text, nullable=False)
+    is_user = db.Column(db.Boolean, nullable=False)  # True if user message, False if AI response
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # AI-specific fields
+    intent = db.Column(db.String(50))  # Detected intent
+    confidence = db.Column(db.Float)   # AI confidence score
+    crisis_detected = db.Column(db.Boolean, default=False)
+
+class RelapseRiskAssessment(db.Model):
+    """Store relapse risk assessments"""
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    risk_level = db.Column(db.String(20), nullable=False)  # low, medium, high
+    risk_probability = db.Column(db.Float, nullable=False)
+    risk_factors = db.Column(db.Text)  # JSON array of risk factors
+    recommendations = db.Column(db.Text)  # JSON array of recommendations
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class EducationalResource(db.Model):
@@ -196,11 +237,12 @@ class ChatMessage(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     edited_at = db.Column(db.DateTime)
 
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-# Helper Functions
+# Helper Functions (keeping existing ones and adding new AI-related ones)
 def calculate_sobriety_days(user):
     if user.sobriety_start_date:
         return (datetime.utcnow().date() - user.sobriety_start_date).days + 1
@@ -238,6 +280,194 @@ def get_user_stats(user):
         'mood_entries': mood_entries,
         'milestones_achieved': milestones_achieved
     }
+
+# ... (keeping all existing helper functions)
+
+# NEW AI-POWERED ROUTES
+
+@app.route('/ai-therapist')
+@login_required
+def ai_therapist():
+    """AI Therapist chat interface"""
+    try:
+        # Get initial risk assessment and mood analysis
+        risk_analysis = AIService.analyze_relapse_risk(current_user)
+        mood_analysis = AIService.analyze_mood_patterns(current_user)
+        
+        return render_template('ai_therapist.html',
+                             risk_analysis=risk_analysis,
+                             mood_analysis=mood_analysis)
+    except Exception as e:
+        app.logger.error(f"AI therapist error: {str(e)}")
+        flash('Unable to load AI therapist. Please try again later.', 'error')
+        return redirect(url_for('index'))
+
+@app.route('/ai-dashboard')
+@login_required
+def ai_dashboard():
+    """AI-powered dashboard with insights and recommendations"""
+    try:
+        # Get AI insights and recommendations
+        insights = AIService.generate_daily_insights(current_user)
+        recommendations = AIService.get_personalized_recommendations(current_user)
+        risk_analysis = AIService.analyze_relapse_risk(current_user)
+        mood_analysis = AIService.analyze_mood_patterns(current_user)
+        
+        # Ensure all required data is present
+        if not all([insights, recommendations, risk_analysis, mood_analysis]):
+            raise ValueError("Missing required data for dashboard")
+        
+        return render_template('ai_dashboard.html',
+                             insights=insights,
+                             recommendations=recommendations,
+                             risk_analysis=risk_analysis,
+                             mood_analysis=mood_analysis)
+    except Exception as e:
+        app.logger.error(f"AI dashboard error: {str(e)}")
+        flash('Unable to load AI dashboard. Please try again later.', 'error')
+        return redirect(url_for('index'))
+
+@app.route('/api/ai-chat', methods=['POST'])
+@login_required
+def ai_chat():
+    """Handle AI chat messages"""
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'success': False, 'message': 'No data provided'}), 400
+
+        message = data.get('message', '').strip()
+        if not message:
+            return jsonify({'success': False, 'message': 'Message cannot be empty'}), 400
+        
+        # Get or create chat session
+        session_id = data.get('session_id')
+        if not session_id:
+            session_id = str(uuid.uuid4())
+            chat_session = AIChatSession(
+                user_id=current_user.id,
+                session_id=session_id
+            )
+            db.session.add(chat_session)
+            db.session.commit()
+        else:
+            chat_session = AIChatSession.query.filter_by(
+                session_id=session_id,
+                user_id=current_user.id
+            ).first()
+            if not chat_session:
+                return jsonify({'success': False, 'message': 'Invalid session'}), 400
+        
+        # Save user message
+        user_message = AIChatMessage(
+            session_id=chat_session.id,
+            message=message,
+            is_user=True
+        )
+        db.session.add(user_message)
+        
+        # Get AI response
+        ai_response_data = AIService.get_ai_chat_response(message, current_user)
+        
+        # Save AI response
+        ai_message = AIChatMessage(
+            session_id=chat_session.id,
+            message=ai_response_data['message'],
+            is_user=False,
+            intent=ai_response_data.get('intent'),
+            confidence=ai_response_data.get('confidence'),
+            crisis_detected=ai_response_data.get('urgent', False)
+        )
+        db.session.add(ai_message)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'session_id': session_id,
+            'response': ai_response_data['message'],
+            'urgent': ai_response_data.get('urgent', False),
+            'suggestions': ai_response_data.get('suggestions', []),
+            'resources': ai_response_data.get('resources', [])
+        })
+        
+    except Exception as e:
+        app.logger.error(f"AI chat error: {str(e)}")
+        db.session.rollback()
+        return jsonify({'success': False, 'message': 'An error occurred processing your message'}), 500
+
+@app.route('/api/relapse-risk')
+@login_required
+def get_relapse_risk():
+    """Get current relapse risk assessment"""
+    try:
+        risk_analysis = AIService.analyze_relapse_risk(current_user)
+        
+        # Save assessment to database
+        assessment = RelapseRiskAssessment(
+            user_id=current_user.id,
+            risk_level=risk_analysis['risk_level'],
+            risk_probability=risk_analysis['risk_probability'],
+            risk_factors=json.dumps(risk_analysis.get('factors', [])),
+            recommendations=json.dumps(risk_analysis.get('recommendations', []))
+        )
+        db.session.add(assessment)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'risk_analysis': risk_analysis
+        })
+        
+    except Exception as e:
+        app.logger.error(f"Relapse risk analysis error: {str(e)}")
+        return jsonify({'success': False, 'message': 'Unable to analyze relapse risk'})
+
+@app.route('/api/ai-insights')
+@login_required
+def get_ai_insights():
+    """Get AI-powered daily insights"""
+    try:
+        insights = AIService.generate_daily_insights(current_user)
+        return jsonify({
+            'success': True,
+            'insights': insights
+        })
+        
+    except Exception as e:
+        app.logger.error(f"AI insights error: {str(e)}")
+        return jsonify({'success': False, 'message': 'Unable to generate insights'})
+
+@app.route('/api/mood-analysis')
+@login_required
+def get_mood_analysis():
+    """Get AI mood pattern analysis"""
+    try:
+        mood_analysis = AIService.analyze_mood_patterns(current_user)
+        return jsonify({
+            'success': True,
+            'analysis': mood_analysis
+        })
+        
+    except Exception as e:
+        app.logger.error(f"Mood analysis error: {str(e)}")
+        return jsonify({'success': False, 'message': 'Unable to analyze mood patterns'})
+
+@app.route('/api/ai-recommendations')
+@login_required
+def get_ai_recommendations():
+    """Get personalized AI recommendations"""
+    try:
+        recommendations = AIService.get_personalized_recommendations(current_user)
+        return jsonify({
+            'success': True,
+            'recommendations': recommendations
+        })
+        
+    except Exception as e:
+        app.logger.error(f"AI recommendations error: {str(e)}")
+        return jsonify({'success': False, 'message': 'Unable to generate recommendations'})
+
+
 
 def create_default_goals(user):
     default_goals = [
@@ -566,8 +796,6 @@ def create_zoom_meeting(title, start_time, duration=60):
     }
 
 def create_google_meet(title, start_time, duration=60):
-    """Create a Google Meet (placeholder implementation)"""
-    # This would integrate with Google Calendar/Meet API
     meeting_id = f"meet_{uuid.uuid4().hex[:10]}"
     meeting_url = f"https://meet.google.com/{meeting_id}"
     return {

@@ -1,0 +1,580 @@
+{% extends "base.html" %}
+
+{% block title %}AI Therapist - AuraRecovery{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-aura-gray dark:bg-gray-900 transition-colors duration-300">
+    <!-- Header -->
+    <header class="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl shadow-sm border-b border-gray-200/20 dark:border-gray-700/20">
+        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <a href="{{ url_for('progress') }}" class="flex items-center space-x-3">
+                <i data-lucide="arrow-left" class="w-5 h-5 text-gray-600 dark:text-gray-300"></i>
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 bg-aura-blue rounded-lg flex items-center justify-center shadow-lg">
+                        <i data-lucide="heart" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <span class="text-xl font-bold text-aura-charcoal dark:text-white">AuraRecovery</span>
+                </div>
+            </a>
+
+            <div class="flex items-center space-x-4">
+                <button onclick="toggleDarkMode()" class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center">
+                    <i data-lucide="sun" class="w-5 h-5 text-yellow-500 hidden dark:block"></i>
+                    <i data-lucide="moon" class="w-5 h-5 text-gray-600 block dark:hidden"></i>
+                </button>
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 bg-aura-green rounded-full flex items-center justify-center">
+                        <span class="text-sm font-bold text-aura-charcoal">{{ current_user.first_name[0] }}{{ current_user.last_name[0] }}</span>
+                    </div>
+                    <span class="text-sm font-medium text-aura-charcoal dark:text-white">{{ current_user.first_name }} {{ current_user.last_name }}</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-4 py-8">
+        <div class="max-w-4xl mx-auto">
+            <!-- AI Therapist Header -->
+            <div class="text-center mb-8">
+                <div class="w-20 h-20 bg-gradient-to-br from-purple-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    <i data-lucide="brain" class="w-10 h-10 text-white"></i>
+                </div>
+                <h1 class="text-3xl font-bold text-aura-charcoal dark:text-white mb-2">AI Recovery Therapist</h1>
+                <p class="text-gray-600 dark:text-gray-300">
+                    Your 24/7 AI companion for recovery support and guidance
+                </p>
+            </div>
+
+            <!-- AI Insights Panel -->
+            <div class="grid lg:grid-cols-3 gap-8 mb-8">
+                <!-- Risk Assessment -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-10 h-10 bg-red-100 dark:bg-red-900/20 rounded-lg flex items-center justify-center">
+                            <i data-lucide="shield-alert" class="w-6 h-6 text-red-600 dark:text-red-400"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-aura-charcoal dark:text-white">Risk Assessment</h3>
+                    </div>
+                    <div id="riskAssessment" class="space-y-3">
+                        <div class="flex items-center justify-center py-4">
+                            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-aura-blue"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mood Analysis -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900/20 rounded-lg flex items-center justify-center">
+                            <i data-lucide="trending-up" class="w-6 h-6 text-blue-600 dark:text-blue-400"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-aura-charcoal dark:text-white">Mood Analysis</h3>
+                    </div>
+                    <div id="moodAnalysis" class="space-y-3">
+                        <div class="flex items-center justify-center py-4">
+                            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-aura-blue"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Recommendations -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-10 h-10 bg-green-100 dark:bg-green-900/20 rounded-lg flex items-center justify-center">
+                            <i data-lucide="lightbulb" class="w-6 h-6 text-green-600 dark:text-green-400"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-aura-charcoal dark:text-white">AI Recommendations</h3>
+                    </div>
+                    <div id="aiRecommendations" class="space-y-3">
+                        <div class="flex items-center justify-center py-4">
+                            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-aura-blue"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Interface -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+                <!-- Chat Header -->
+                <div class="bg-gradient-to-r from-purple-500 to-blue-600 p-6 text-white">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                            <i data-lucide="bot" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold">Aura AI Therapist</h3>
+                            <p class="text-purple-100">Here to support your recovery journey</p>
+                        </div>
+                        <div class="ml-auto">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                                <span class="text-sm">Online</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat Messages -->
+                <div id="chatMessages" class="h-96 overflow-y-auto p-6 space-y-4 bg-gray-50 dark:bg-gray-900">
+                    <!-- Welcome Message -->
+                    <div class="flex items-start space-x-3">
+                        <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="bot" class="w-4 h-4 text-white"></i>
+                        </div>
+                        <div class="bg-white dark:bg-gray-800 rounded-lg px-4 py-3 max-w-xs lg:max-w-md shadow-sm">
+                            <p class="text-gray-800 dark:text-gray-200">Hello {{ current_user.first_name }}! I'm your AI recovery therapist. I'm here to provide support, guidance, and a listening ear whenever you need it. How are you feeling today?</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">AI Therapist • Just now</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Suggestions -->
+                <div id="quickSuggestions" class="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">Quick topics to discuss:</p>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="sendQuickMessage('I\'m feeling anxious today')" class="bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300 px-3 py-1 rounded-full text-sm hover:bg-blue-200 dark:hover:bg-blue-900/40 transition-colors">
+                            Feeling anxious
+                        </button>
+                        <button onclick="sendQuickMessage('I\'m having cravings')" class="bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-300 px-3 py-1 rounded-full text-sm hover:bg-red-200 dark:hover:bg-red-900/40 transition-colors">
+                            Having cravings
+                        </button>
+                        <button onclick="sendQuickMessage('I need motivation')" class="bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-300 px-3 py-1 rounded-full text-sm hover:bg-green-200 dark:hover:bg-green-900/40 transition-colors">
+                            Need motivation
+                        </button>
+                        <button onclick="sendQuickMessage('Tell me about my progress')" class="bg-purple-100 dark:bg-purple-900/20 text-purple-800 dark:text-purple-300 px-3 py-1 rounded-full text-sm hover:bg-purple-200 dark:hover:bg-purple-900/40 transition-colors">
+                            My progress
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Message Input -->
+                <div class="p-6 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+                    <form id="chatForm" class="flex items-end space-x-3">
+                        <div class="flex-1">
+                            <textarea
+                                id="messageInput"
+                                placeholder="Share what's on your mind..."
+                                rows="2"
+                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 bg-white dark:bg-gray-700 text-aura-charcoal dark:text-white resize-none"
+                                maxlength="500"
+                            ></textarea>
+                            <div class="flex justify-between items-center mt-2">
+                                <span id="charCount" class="text-xs text-gray-500 dark:text-gray-400">0/500</span>
+                                <div class="flex items-center space-x-2 text-xs text-gray-500 dark:text-gray-400">
+                                    <i data-lucide="shield-check" class="w-4 h-4"></i>
+                                    <span>End-to-end encrypted</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button
+                            type="submit"
+                            id="sendButton"
+                            class="bg-purple-500 hover:bg-purple-600 text-white p-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled
+                        >
+                            <i data-lucide="send" class="w-5 h-5"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Crisis Resources -->
+            <div id="crisisResources" class="mt-8 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6 hidden">
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="w-10 h-10 bg-red-500 rounded-full flex items-center justify-center">
+                        <i data-lucide="phone" class="w-6 h-6 text-white"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-red-800 dark:text-red-300">Crisis Support Resources</h3>
+                </div>
+                <div class="grid md:grid-cols-3 gap-4">
+                    <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
+                        <h4 class="font-semibold text-gray-800 dark:text-gray-200 mb-2">Suicide Prevention Lifeline</h4>
+                        <p class="text-2xl font-bold text-red-600 dark:text-red-400 mb-1">988</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">24/7 Crisis Support</p>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
+                        <h4 class="font-semibold text-gray-800 dark:text-gray-200 mb-2">Crisis Text Line</h4>
+                        <p class="text-lg font-bold text-red-600 dark:text-red-400 mb-1">Text HOME to 741741</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">24/7 Text Support</p>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
+                        <h4 class="font-semibold text-gray-800 dark:text-gray-200 mb-2">SAMHSA Helpline</h4>
+                        <p class="text-lg font-bold text-red-600 dark:text-red-400 mb-1">1-800-662-4357</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">Treatment Referrals</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentSessionId = null;
+    let isTyping = false;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        loadAIInsights();
+        setupChatInterface();
+    });
+
+    function setupChatInterface() {
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+        const charCount = document.getElementById('charCount');
+        const chatForm = document.getElementById('chatForm');
+
+        // Character counter
+        messageInput.addEventListener('input', function() {
+            const length = this.value.length;
+            charCount.textContent = `${length}/500`;
+            sendButton.disabled = length === 0 || isTyping;
+        });
+
+        // Auto-resize textarea
+        messageInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+
+        // Handle form submission
+        document.getElementById('sendButton').addEventListener('click', function(e) {
+            e.preventDefault();
+            const message = messageInput.value.trim();
+            if (message && !isTyping) {
+                sendMessage(message);
+            }
+        });
+
+        // Handle Enter key (Shift+Enter for new line)
+        messageInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                chatForm.dispatchEvent(new Event('submit'));
+            }
+        });
+    }
+
+    async function sendMessage(message) {
+        if (isTyping) return;
+
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+        const chatMessages = document.getElementById('chatMessages');
+
+        // Add user message to chat
+        addMessageToChat(message, true);
+        
+        // Clear input and disable send button
+        messageInput.value = '';
+        messageInput.style.height = 'auto';
+        document.getElementById('charCount').textContent = '0/500';
+        sendButton.disabled = true;
+        isTyping = true;
+
+        // Show typing indicator
+        showTypingIndicator();
+
+        try {
+            const response = await fetch('/api/ai-chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({
+                    message: message,
+                    session_id: currentSessionId
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            if (data.success) {
+                currentSessionId = data.session_id;
+                
+                // Remove typing indicator
+                removeTypingIndicator();
+                
+                // Add AI response
+                addMessageToChat(data.response, false);
+                
+                // Show crisis resources if urgent
+                if (data.urgent) {
+                    showCrisisResources(data.resources);
+                }
+                
+                // Update suggestions
+                if (data.suggestions && data.suggestions.length > 0) {
+                    updateQuickSuggestions(data.suggestions);
+                }
+            } else {
+                removeTypingIndicator();
+                addMessageToChat('I apologize, but I encountered an error. Please try again.', false);
+            }
+        } catch (error) {
+            console.error('Chat error:', error);
+            removeTypingIndicator();
+            addMessageToChat('I\'m having trouble connecting right now. Please try again in a moment.', false);
+        } finally {
+            isTyping = false;
+            sendButton.disabled = false;
+        }
+    }
+
+    function sendQuickMessage(message) {
+        sendMessage(message);
+    }
+
+    function addMessageToChat(message, isUser) {
+        const chatMessages = document.getElementById('chatMessages');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'flex items-start space-x-3';
+        
+        if (isUser) {
+            messageDiv.className += ' flex-row-reverse space-x-reverse';
+        }
+
+        const avatarDiv = document.createElement('div');
+        if (isUser) {
+            avatarDiv.className = 'w-8 h-8 bg-aura-green rounded-full flex items-center justify-center flex-shrink-0';
+            avatarDiv.innerHTML = `<span class="text-sm font-bold text-aura-charcoal">${'{{ current_user.first_name[0] }}{{ current_user.last_name[0] }}'}</span>`;
+        } else {
+            avatarDiv.className = 'w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center flex-shrink-0';
+            avatarDiv.innerHTML = '<i data-lucide="bot" class="w-4 h-4 text-white"></i>';
+        }
+
+        const messageContentDiv = document.createElement('div');
+        messageContentDiv.className = `rounded-lg px-4 py-3 max-w-xs lg:max-w-md shadow-sm ${
+            isUser 
+                ? 'bg-aura-blue text-white' 
+                : 'bg-white dark:bg-gray-800'
+        }`;
+
+        const messageText = document.createElement('p');
+        messageText.className = isUser ? 'text-white' : 'text-gray-800 dark:text-gray-200';
+        messageText.textContent = message;
+
+        const timestamp = document.createElement('p');
+        timestamp.className = `text-xs mt-2 ${
+            isUser 
+                ? 'text-blue-100' 
+                : 'text-gray-500 dark:text-gray-400'
+        }`;
+        timestamp.textContent = `${isUser ? 'You' : 'AI Therapist'} • ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+
+        messageContentDiv.appendChild(messageText);
+        messageContentDiv.appendChild(timestamp);
+        messageDiv.appendChild(avatarDiv);
+        messageDiv.appendChild(messageContentDiv);
+        
+        chatMessages.appendChild(messageDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        // Re-initialize Lucide icons
+        lucide.createIcons();
+    }
+
+    function showTypingIndicator() {
+        const chatMessages = document.getElementById('chatMessages');
+        const typingDiv = document.createElement('div');
+        typingDiv.id = 'typingIndicator';
+        typingDiv.className = 'flex items-start space-x-3';
+        
+        typingDiv.innerHTML = `
+            <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
+                <i data-lucide="bot" class="w-4 h-4 text-white"></i>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-lg px-4 py-3 shadow-sm">
+                <div class="flex space-x-1">
+                    <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                    <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+                    <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                </div>
+            </div>
+        `;
+        
+        chatMessages.appendChild(typingDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        lucide.createIcons();
+    }
+
+    function removeTypingIndicator() {
+        const typingIndicator = document.getElementById('typingIndicator');
+        if (typingIndicator) {
+            typingIndicator.remove();
+        }
+    }
+
+    function showCrisisResources(resources) {
+        const chatMessages = document.getElementById('chatMessages');
+        const crisisDiv = document.createElement('div');
+        crisisDiv.className = 'flex items-start space-x-3 mt-4';
+        
+        crisisDiv.innerHTML = `
+            <div class="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center flex-shrink-0">
+                <i data-lucide="alert-triangle" class="w-4 h-4 text-white"></i>
+            </div>
+            <div class="bg-red-50 dark:bg-red-900/20 rounded-lg px-4 py-3 max-w-xs lg:max-w-md shadow-sm">
+                <h4 class="text-red-800 dark:text-red-200 font-semibold mb-2">Crisis Resources</h4>
+                <ul class="space-y-2">
+                    ${resources.map(resource => `
+                        <li class="text-red-700 dark:text-red-300">
+                            <strong>${resource.name}:</strong>
+                            ${resource.phone ? `Call ${resource.phone}` : ''}
+                            ${resource.text ? `Text ${resource.text}` : ''}
+                            ${resource.available ? ` (${resource.available})` : ''}
+                        </li>
+                    `).join('')}
+                </ul>
+            </div>
+        `;
+        
+        chatMessages.appendChild(crisisDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        lucide.createIcons();
+    }
+
+    function updateQuickSuggestions(suggestions) {
+        const suggestionsContainer = document.getElementById('quickSuggestions');
+        if (!suggestionsContainer) return;
+
+        suggestionsContainer.innerHTML = suggestions.map(suggestion => `
+            <button onclick="sendQuickMessage('${suggestion}')" 
+                    class="px-4 py-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                ${suggestion}
+            </button>
+        `).join('');
+    }
+
+    async function loadAIInsights() {
+        try {
+            // Load risk assessment
+            const riskResponse = await fetch('/api/relapse-risk');
+            const riskData = await riskResponse.json();
+            
+            if (riskData.success) {
+                displayRiskAssessment(riskData.risk_analysis);
+            }
+
+            // Load mood analysis
+            const moodResponse = await fetch('/api/mood-analysis');
+            const moodData = await moodResponse.json();
+            
+            if (moodData.success) {
+                displayMoodAnalysis(moodData.analysis);
+            }
+
+            // Load AI recommendations
+            const recommendationsResponse = await fetch('/api/ai-recommendations');
+            const recommendationsData = await recommendationsResponse.json();
+            
+            if (recommendationsData.success) {
+                displayRecommendations(recommendationsData.recommendations);
+            }
+        } catch (error) {
+            console.error('Error loading AI insights:', error);
+        }
+    }
+
+    function displayRiskAssessment(riskAnalysis) {
+        const container = document.getElementById('riskAssessment');
+        const riskLevel = riskAnalysis.risk_level;
+        const riskProbability = (riskAnalysis.risk_probability * 100).toFixed(1);
+        
+        let riskColor = 'green';
+        let riskText = 'Low Risk';
+        
+        if (riskLevel === 'medium') {
+            riskColor = 'yellow';
+            riskText = 'Medium Risk';
+        } else if (riskLevel === 'high') {
+            riskColor = 'red';
+            riskText = 'High Risk';
+        }
+        
+        container.innerHTML = `
+            <div class="text-center">
+                <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-${riskColor}-100 dark:bg-${riskColor}-900/20 flex items-center justify-center">
+                    <span class="text-2xl font-bold text-${riskColor}-600 dark:text-${riskColor}-400">${riskProbability}%</span>
+                </div>
+                <p class="font-semibold text-${riskColor}-600 dark:text-${riskColor}-400">${riskText}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Based on recent patterns</p>
+            </div>
+            ${riskAnalysis.factors && riskAnalysis.factors.length > 0 ? `
+                <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Key Factors:</p>
+                    <ul class="text-xs text-gray-600 dark:text-gray-400 space-y-1">
+                        ${riskAnalysis.factors.map(factor => `<li>• ${factor}</li>`).join('')}
+                    </ul>
+                </div>
+            ` : ''}
+        `;
+    }
+
+    function displayMoodAnalysis(moodAnalysis) {
+        const container = document.getElementById('moodAnalysis');
+        const analysis = moodAnalysis.analysis;
+        
+        let trendIcon = 'minus';
+        let trendColor = 'gray';
+        let trendText = 'Stable';
+        
+        if (analysis.trend === 'improving') {
+            trendIcon = 'trending-up';
+            trendColor = 'green';
+            trendText = 'Improving';
+        } else if (analysis.trend === 'declining') {
+            trendIcon = 'trending-down';
+            trendColor = 'red';
+            trendText = 'Declining';
+        }
+        
+        container.innerHTML = `
+            <div class="text-center">
+                <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-${trendColor}-100 dark:bg-${trendColor}-900/20 flex items-center justify-center">
+                    <i data-lucide="${trendIcon}" class="w-8 h-8 text-${trendColor}-600 dark:text-${trendColor}-400"></i>
+                </div>
+                <p class="font-semibold text-${trendColor}-600 dark:text-${trendColor}-400">${trendText}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Last 30 days</p>
+            </div>
+            <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <p class="text-xs text-gray-600 dark:text-gray-400">${analysis.analysis}</p>
+            </div>
+        `;
+        
+        lucide.createIcons();
+    }
+
+    function displayRecommendations(recommendations) {
+        const container = document.getElementById('aiRecommendations');
+        
+        if (recommendations.length === 0) {
+            container.innerHTML = `
+                <div class="text-center py-4">
+                    <i data-lucide="check-circle" class="w-12 h-12 text-green-500 mx-auto mb-2"></i>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">You're doing great! Keep up the good work.</p>
+                </div>
+            `;
+        } else {
+            container.innerHTML = `
+                <div class="space-y-3">
+                    ${recommendations.slice(0, 3).map(rec => `
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                            <div class="flex items-start space-x-2">
+                                <div class="w-2 h-2 rounded-full bg-${rec.priority === 'high' ? 'red' : rec.priority === 'medium' ? 'yellow' : 'blue'}-500 mt-2 flex-shrink-0"></div>
+                                <p class="text-xs text-gray-700 dark:text-gray-300">${rec.message}</p>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+        
+        lucide.createIcons();
+    }
+</script>
+{% endblock %}

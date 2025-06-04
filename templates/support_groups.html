@@ -25,6 +25,14 @@
                     <i data-lucide="sun" class="w-5 h-5 text-yellow-500 hidden dark:block"></i>
                     <i data-lucide="moon" class="w-5 h-5 text-gray-600 block dark:hidden"></i>
                 </button>
+                <a href="{{ url_for('ai_dashboard') }}" class="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 hover:from-blue-600 hover:via-purple-600 hover:to-pink-600 text-white px-4 py-2 rounded-lg shadow-lg transition-colors font-medium flex items-center">
+                    <i data-lucide="brain" class="w-4 h-4 mr-2 inline"></i>
+                    AI Dashboard
+                </a>
+                <a href="{{ url_for('ai_therapist') }}" class="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white px-4 py-2 rounded-lg shadow-lg transition-colors font-medium flex items-center">
+                    <i data-lucide="message-circle" class="w-4 h-4 mr-2 inline"></i>
+                    AI Therapist
+                </a>
                 <a href="{{ url_for('profile_page') }}" class="flex items-center space-x-2 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-lg transition-colors">
                     <div class="w-8 h-8 bg-aura-green rounded-full flex items-center justify-center">
                         <span class="text-sm font-bold text-aura-charcoal">{{ current_user.first_name[0] }}{{ current_user.last_name[0] }}</span>
