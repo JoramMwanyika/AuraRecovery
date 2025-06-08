@@ -3,6 +3,7 @@ from ai_models import relapse_predictor, ai_chatbot, mood_analyzer
 from datetime import datetime, timedelta
 import json
 import numpy as np
+from gpt_therapist import GPTTherapist
 
 class AIService:
     """Service class for AI-powered features"""
@@ -225,56 +226,29 @@ class AIService:
     
     @staticmethod
     def get_ai_chat_response(message, user):
-        """Get AI chatbot response with enhanced context"""
-        # Check for crisis situation first
-        if ai_chatbot.detect_crisis(message):
-            return ai_chatbot.get_crisis_response()
+        """Get AI chatbot response using GPT (ChatGPT clone)"""
+        # Crisis detection (optional: keep or remove)
+        if hasattr(ai_chatbot, 'detect_crisis') and ai_chatbot.detect_crisis(message):
+            crisis = ai_chatbot.get_crisis_response()
+            return {
+                'message': crisis['message'],
+                'urgent': True
+            }
         
-        # Prepare comprehensive user context
-        user_context = {
-            'first_name': user.first_name,
-            'days_sober': (datetime.utcnow().date() - user.sobriety_start_date).days if user.sobriety_start_date else 0,
-            'user_type': user.user_type,
-            'recovery_goals': json.loads(user.recovery_goals) if user.recovery_goals else []
+        # Prepare conversation history (for now, just system and user message)
+        system_prompt = {
+            "role": "system",
+            "content": "You are a compassionate, supportive AI therapist. Respond conversationally and empathetically, like a real therapist, and help the user talk through their feelings."
         }
+        user_prompt = {"role": "user", "content": message}
+        messages = [system_prompt, user_prompt]
         
-        # Get AI response
-        response = ai_chatbot.generate_response(message, user_context)
-        
-        # Get conversation suggestions based on detected intent
-        intent = ai_chatbot.classify_intent(message)
-        suggestions = ai_chatbot.get_conversation_suggestions(intent)
-        
+        gpt = GPTTherapist()
+        response = gpt.get_response(messages)
         return {
             'message': response,
-            'urgent': False,
-            'suggestions': suggestions,
-            'intent': intent,
-            'resources': AIService._get_relevant_resources(intent)
+            'urgent': False
         }
-    
-    @staticmethod
-    def _get_relevant_resources(intent):
-        """Get relevant resources based on conversation intent"""
-        resources = {
-            'craving': [
-                {'name': 'Craving Management Techniques', 'url': '/resources?type=article&topic=cravings'},
-                {'name': 'Support Groups', 'url': '/support-groups'},
-                {'name': 'Crisis Hotline', 'phone': '1-800-662-4357'}
-            ],
-            'anxiety': [
-                {'name': 'Anxiety Management Resources', 'url': '/resources?type=article&topic=anxiety'},
-                {'name': 'Meditation Guides', 'url': '/resources?type=video&topic=meditation'},
-                {'name': 'Mental Health Support', 'phone': '988'}
-            ],
-            'depression': [
-                {'name': 'Depression Support Resources', 'url': '/resources?type=article&topic=depression'},
-                {'name': 'Professional Help Directory', 'url': '/resources?type=directory'},
-                {'name': 'Crisis Support', 'phone': '988'}
-            ]
-        }
-        
-        return resources.get(intent, [])
     
     @staticmethod
     def analyze_mood_patterns(user):

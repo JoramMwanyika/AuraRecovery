@@ -217,11 +217,78 @@
         setupChatInterface();
     });
 
+    async function loadAIInsights() {
+        try {
+            const response = await fetch('/api/ai/insights');
+            const data = await response.json();
+            
+            if (response.ok) {
+                updateRiskAssessment(data.risk);
+                updateMoodAnalysis(data.mood);
+                updateRecommendations(data.recommendations);
+            } else {
+                console.error('Failed to load AI insights:', data.error);
+            }
+        } catch (error) {
+            console.error('Error loading AI insights:', error);
+        }
+    }
+
+    function updateRiskAssessment(risk) {
+        const container = document.getElementById('riskAssessment');
+        container.innerHTML = `
+            <div class="text-center">
+                <div class="text-2xl font-bold text-${getRiskColor(risk.risk_level)} mb-2">
+                    ${risk.risk_level}
+                </div>
+                <p class="text-sm text-gray-600 dark:text-gray-400">
+                    ${risk.analysis}
+                </p>
+            </div>
+        `;
+    }
+
+    function updateMoodAnalysis(mood) {
+        const container = document.getElementById('moodAnalysis');
+        container.innerHTML = `
+            <div class="text-center">
+                <div class="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-2">
+                    ${mood.analysis.trend}
+                </div>
+                <p class="text-sm text-gray-600 dark:text-gray-400">
+                    ${mood.analysis.analysis}
+                </p>
+            </div>
+        `;
+    }
+
+    function updateRecommendations(recommendations) {
+        const container = document.getElementById('aiRecommendations');
+        container.innerHTML = recommendations.slice(0, 3).map(rec => `
+            <div class="flex items-start space-x-3">
+                <div class="w-6 h-6 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="check" class="w-4 h-4 text-green-600 dark:text-green-400"></i>
+                </div>
+                <p class="text-sm text-gray-600 dark:text-gray-400">${rec.message}</p>
+            </div>
+        `).join('');
+    }
+
+    function getRiskColor(riskLevel) {
+        const colors = {
+            'low': 'green-600 dark:text-green-400',
+            'moderate': 'yellow-600 dark:text-yellow-400',
+            'high': 'red-600 dark:text-red-400'
+        };
+        return colors[riskLevel.toLowerCase()] || 'gray-600 dark:text-gray-400';
+    }
+
     function setupChatInterface() {
         const messageInput = document.getElementById('messageInput');
         const sendButton = document.getElementById('sendButton');
         const charCount = document.getElementById('charCount');
         const chatForm = document.getElementById('chatForm');
+        const chatMessages = document.getElementById('chatMessages');
 
         // Character counter
         messageInput.addEventListener('input', function() {
@@ -237,11 +304,11 @@
         });
 
         // Handle form submission
-        document.getElementById('sendButton').addEventListener('click', function(e) {
+        chatForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             const message = messageInput.value.trim();
             if (message && !isTyping) {
-                sendMessage(message);
+                await sendMessage(message);
             }
         });
 
@@ -249,332 +316,128 @@
         messageInput.addEventListener('keydown', function(e) {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
-                chatForm.dispatchEvent(new Event('submit'));
+                if (messageInput.value.trim() && !isTyping) {
+                    sendMessage(messageInput.value.trim());
+                }
             }
         });
     }
 
     async function sendMessage(message) {
-        if (isTyping) return;
-
+        const chatMessages = document.getElementById('chatMessages');
         const messageInput = document.getElementById('messageInput');
         const sendButton = document.getElementById('sendButton');
-        const chatMessages = document.getElementById('chatMessages');
-
-        // Add user message to chat
-        addMessageToChat(message, true);
         
-        // Clear input and disable send button
+        // Add user message
+        appendMessage('user', message);
+        
+        // Clear input
         messageInput.value = '';
         messageInput.style.height = 'auto';
         document.getElementById('charCount').textContent = '0/500';
-        sendButton.disabled = true;
-        isTyping = true;
-
+        
         // Show typing indicator
-        showTypingIndicator();
-
+        isTyping = true;
+        sendButton.disabled = true;
+        appendTypingIndicator();
+        
         try {
-            const response = await fetch('/api/ai-chat', {
+            const response = await fetch('/api/ai/chat', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
                 },
-                body: JSON.stringify({
-                    message: message,
-                    session_id: currentSessionId
-                })
+                body: JSON.stringify({ message })
             });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
+            
             const data = await response.json();
-
-            if (data.success) {
-                currentSessionId = data.session_id;
+            
+            // Remove typing indicator
+            removeTypingIndicator();
+            
+            if (response.ok) {
+                appendMessage('ai', data.message);
                 
-                // Remove typing indicator
-                removeTypingIndicator();
-                
-                // Add AI response
-                addMessageToChat(data.response, false);
-                
-                // Show crisis resources if urgent
+                // If urgent response, show crisis resources
                 if (data.urgent) {
-                    showCrisisResources(data.resources);
+                    document.getElementById('crisisResources').classList.remove('hidden');
                 }
                 
-                // Update suggestions
-                if (data.suggestions && data.suggestions.length > 0) {
-                    updateQuickSuggestions(data.suggestions);
-                }
+                // Refresh insights after chat
+                loadAIInsights();
             } else {
-                removeTypingIndicator();
-                addMessageToChat('I apologize, but I encountered an error. Please try again.', false);
+                appendMessage('ai', 'I apologize, but I encountered an error. Please try again later.');
+                console.error('Chat error:', data.error);
             }
         } catch (error) {
-            console.error('Chat error:', error);
             removeTypingIndicator();
-            addMessageToChat('I\'m having trouble connecting right now. Please try again in a moment.', false);
-        } finally {
-            isTyping = false;
-            sendButton.disabled = false;
+            appendMessage('ai', 'I apologize, but I encountered an error. Please try again later.');
+            console.error('Chat error:', error);
         }
+        
+        isTyping = false;
+        sendButton.disabled = false;
     }
 
-    function sendQuickMessage(message) {
-        sendMessage(message);
-    }
-
-    function addMessageToChat(message, isUser) {
+    function appendMessage(sender, message) {
         const chatMessages = document.getElementById('chatMessages');
         const messageDiv = document.createElement('div');
         messageDiv.className = 'flex items-start space-x-3';
         
-        if (isUser) {
-            messageDiv.className += ' flex-row-reverse space-x-reverse';
-        }
-
-        const avatarDiv = document.createElement('div');
-        if (isUser) {
-            avatarDiv.className = 'w-8 h-8 bg-aura-green rounded-full flex items-center justify-center flex-shrink-0';
-            avatarDiv.innerHTML = `<span class="text-sm font-bold text-aura-charcoal">${'{{ current_user.first_name[0] }}{{ current_user.last_name[0] }}'}</span>`;
-        } else {
-            avatarDiv.className = 'w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center flex-shrink-0';
-            avatarDiv.innerHTML = '<i data-lucide="bot" class="w-4 h-4 text-white"></i>';
-        }
-
-        const messageContentDiv = document.createElement('div');
-        messageContentDiv.className = `rounded-lg px-4 py-3 max-w-xs lg:max-w-md shadow-sm ${
-            isUser 
-                ? 'bg-aura-blue text-white' 
-                : 'bg-white dark:bg-gray-800'
-        }`;
-
-        const messageText = document.createElement('p');
-        messageText.className = isUser ? 'text-white' : 'text-gray-800 dark:text-gray-200';
-        messageText.textContent = message;
-
-        const timestamp = document.createElement('p');
-        timestamp.className = `text-xs mt-2 ${
-            isUser 
-                ? 'text-blue-100' 
-                : 'text-gray-500 dark:text-gray-400'
-        }`;
-        timestamp.textContent = `${isUser ? 'You' : 'AI Therapist'} • ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
-
-        messageContentDiv.appendChild(messageText);
-        messageContentDiv.appendChild(timestamp);
-        messageDiv.appendChild(avatarDiv);
-        messageDiv.appendChild(messageContentDiv);
+        const icon = sender === 'user' ? 'user' : 'bot';
+        const bgColor = sender === 'user' ? 'bg-purple-500' : 'bg-purple-500';
+        
+        messageDiv.innerHTML = `
+            <div class="w-8 h-8 ${bgColor} rounded-full flex items-center justify-center flex-shrink-0">
+                <i data-lucide="${icon}" class="w-4 h-4 text-white"></i>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-lg px-4 py-3 max-w-xs lg:max-w-md shadow-sm">
+                <p class="text-gray-800 dark:text-gray-200">${message}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">${sender === 'user' ? 'You' : 'AI Therapist'} • Just now</p>
+            </div>
+        `;
         
         chatMessages.appendChild(messageDiv);
         chatMessages.scrollTop = chatMessages.scrollHeight;
-
-        // Re-initialize Lucide icons
-        lucide.createIcons();
     }
 
-    function showTypingIndicator() {
+    function appendTypingIndicator() {
         const chatMessages = document.getElementById('chatMessages');
-        const typingDiv = document.createElement('div');
-        typingDiv.id = 'typingIndicator';
-        typingDiv.className = 'flex items-start space-x-3';
-        
-        typingDiv.innerHTML = `
+        const indicator = document.createElement('div');
+        indicator.id = 'typingIndicator';
+        indicator.className = 'flex items-start space-x-3';
+        indicator.innerHTML = `
             <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
                 <i data-lucide="bot" class="w-4 h-4 text-white"></i>
             </div>
             <div class="bg-white dark:bg-gray-800 rounded-lg px-4 py-3 shadow-sm">
-                <div class="flex space-x-1">
+                <div class="flex space-x-2">
                     <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                    <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
-                    <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                    <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-100"></div>
+                    <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-200"></div>
                 </div>
             </div>
         `;
-        
-        chatMessages.appendChild(typingDiv);
+        chatMessages.appendChild(indicator);
         chatMessages.scrollTop = chatMessages.scrollHeight;
-        lucide.createIcons();
     }
 
     function removeTypingIndicator() {
-        const typingIndicator = document.getElementById('typingIndicator');
-        if (typingIndicator) {
-            typingIndicator.remove();
+        const indicator = document.getElementById('typingIndicator');
+        if (indicator) {
+            indicator.remove();
         }
     }
 
-    function showCrisisResources(resources) {
-        const chatMessages = document.getElementById('chatMessages');
-        const crisisDiv = document.createElement('div');
-        crisisDiv.className = 'flex items-start space-x-3 mt-4';
-        
-        crisisDiv.innerHTML = `
-            <div class="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center flex-shrink-0">
-                <i data-lucide="alert-triangle" class="w-4 h-4 text-white"></i>
-            </div>
-            <div class="bg-red-50 dark:bg-red-900/20 rounded-lg px-4 py-3 max-w-xs lg:max-w-md shadow-sm">
-                <h4 class="text-red-800 dark:text-red-200 font-semibold mb-2">Crisis Resources</h4>
-                <ul class="space-y-2">
-                    ${resources.map(resource => `
-                        <li class="text-red-700 dark:text-red-300">
-                            <strong>${resource.name}:</strong>
-                            ${resource.phone ? `Call ${resource.phone}` : ''}
-                            ${resource.text ? `Text ${resource.text}` : ''}
-                            ${resource.available ? ` (${resource.available})` : ''}
-                        </li>
-                    `).join('')}
-                </ul>
-            </div>
-        `;
-        
-        chatMessages.appendChild(crisisDiv);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-        lucide.createIcons();
-    }
-
-    function updateQuickSuggestions(suggestions) {
-        const suggestionsContainer = document.getElementById('quickSuggestions');
-        if (!suggestionsContainer) return;
-
-        suggestionsContainer.innerHTML = suggestions.map(suggestion => `
-            <button onclick="sendQuickMessage('${suggestion}')" 
-                    class="px-4 py-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                ${suggestion}
-            </button>
-        `).join('');
-    }
-
-    async function loadAIInsights() {
-        try {
-            // Load risk assessment
-            const riskResponse = await fetch('/api/relapse-risk');
-            const riskData = await riskResponse.json();
-            
-            if (riskData.success) {
-                displayRiskAssessment(riskData.risk_analysis);
-            }
-
-            // Load mood analysis
-            const moodResponse = await fetch('/api/mood-analysis');
-            const moodData = await moodResponse.json();
-            
-            if (moodData.success) {
-                displayMoodAnalysis(moodData.analysis);
-            }
-
-            // Load AI recommendations
-            const recommendationsResponse = await fetch('/api/ai-recommendations');
-            const recommendationsData = await recommendationsResponse.json();
-            
-            if (recommendationsData.success) {
-                displayRecommendations(recommendationsData.recommendations);
-            }
-        } catch (error) {
-            console.error('Error loading AI insights:', error);
-        }
-    }
-
-    function displayRiskAssessment(riskAnalysis) {
-        const container = document.getElementById('riskAssessment');
-        const riskLevel = riskAnalysis.risk_level;
-        const riskProbability = (riskAnalysis.risk_probability * 100).toFixed(1);
-        
-        let riskColor = 'green';
-        let riskText = 'Low Risk';
-        
-        if (riskLevel === 'medium') {
-            riskColor = 'yellow';
-            riskText = 'Medium Risk';
-        } else if (riskLevel === 'high') {
-            riskColor = 'red';
-            riskText = 'High Risk';
-        }
-        
-        container.innerHTML = `
-            <div class="text-center">
-                <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-${riskColor}-100 dark:bg-${riskColor}-900/20 flex items-center justify-center">
-                    <span class="text-2xl font-bold text-${riskColor}-600 dark:text-${riskColor}-400">${riskProbability}%</span>
-                </div>
-                <p class="font-semibold text-${riskColor}-600 dark:text-${riskColor}-400">${riskText}</p>
-                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Based on recent patterns</p>
-            </div>
-            ${riskAnalysis.factors && riskAnalysis.factors.length > 0 ? `
-                <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                    <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Key Factors:</p>
-                    <ul class="text-xs text-gray-600 dark:text-gray-400 space-y-1">
-                        ${riskAnalysis.factors.map(factor => `<li>• ${factor}</li>`).join('')}
-                    </ul>
-                </div>
-            ` : ''}
-        `;
-    }
-
-    function displayMoodAnalysis(moodAnalysis) {
-        const container = document.getElementById('moodAnalysis');
-        const analysis = moodAnalysis.analysis;
-        
-        let trendIcon = 'minus';
-        let trendColor = 'gray';
-        let trendText = 'Stable';
-        
-        if (analysis.trend === 'improving') {
-            trendIcon = 'trending-up';
-            trendColor = 'green';
-            trendText = 'Improving';
-        } else if (analysis.trend === 'declining') {
-            trendIcon = 'trending-down';
-            trendColor = 'red';
-            trendText = 'Declining';
-        }
-        
-        container.innerHTML = `
-            <div class="text-center">
-                <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-${trendColor}-100 dark:bg-${trendColor}-900/20 flex items-center justify-center">
-                    <i data-lucide="${trendIcon}" class="w-8 h-8 text-${trendColor}-600 dark:text-${trendColor}-400"></i>
-                </div>
-                <p class="font-semibold text-${trendColor}-600 dark:text-${trendColor}-400">${trendText}</p>
-                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Last 30 days</p>
-            </div>
-            <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                <p class="text-xs text-gray-600 dark:text-gray-400">${analysis.analysis}</p>
-            </div>
-        `;
-        
-        lucide.createIcons();
-    }
-
-    function displayRecommendations(recommendations) {
-        const container = document.getElementById('aiRecommendations');
-        
-        if (recommendations.length === 0) {
-            container.innerHTML = `
-                <div class="text-center py-4">
-                    <i data-lucide="check-circle" class="w-12 h-12 text-green-500 mx-auto mb-2"></i>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">You're doing great! Keep up the good work.</p>
-                </div>
-            `;
-        } else {
-            container.innerHTML = `
-                <div class="space-y-3">
-                    ${recommendations.slice(0, 3).map(rec => `
-                        <div class="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                            <div class="flex items-start space-x-2">
-                                <div class="w-2 h-2 rounded-full bg-${rec.priority === 'high' ? 'red' : rec.priority === 'medium' ? 'yellow' : 'blue'}-500 mt-2 flex-shrink-0"></div>
-                                <p class="text-xs text-gray-700 dark:text-gray-300">${rec.message}</p>
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
-            `;
-        }
-        
-        lucide.createIcons();
+    function sendQuickMessage(message) {
+        const messageInput = document.getElementById('messageInput');
+        messageInput.value = message;
+        messageInput.dispatchEvent(new Event('input'));
+        sendMessage(message);
     }
 </script>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/ai_therapist.js') }}"></script>
 {% endblock %}

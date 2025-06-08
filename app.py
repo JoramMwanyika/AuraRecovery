@@ -288,19 +288,38 @@ def get_user_stats(user):
 @app.route('/ai-therapist')
 @login_required
 def ai_therapist():
-    """AI Therapist chat interface"""
+    return render_template('ai_therapist.html')
+
+@app.route('/api/ai/chat', methods=['POST'])
+@login_required
+def ai_chat_endpoint():
+    data = request.get_json()
+    message = data.get('message')
+    
+    if not message:
+        return jsonify({'error': 'No message provided'}), 400
+    
     try:
-        # Get initial risk assessment and mood analysis
+        response = AIService.get_ai_chat_response(message, current_user)
+        return jsonify(response)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/ai/insights')
+@login_required
+def ai_insights():
+    try:
         risk_analysis = AIService.analyze_relapse_risk(current_user)
         mood_analysis = AIService.analyze_mood_patterns(current_user)
+        recommendations = AIService.get_personalized_recommendations(current_user)
         
-        return render_template('ai_therapist.html',
-                             risk_analysis=risk_analysis,
-                             mood_analysis=mood_analysis)
+        return jsonify({
+            'risk': risk_analysis,
+            'mood': mood_analysis,
+            'recommendations': recommendations
+        })
     except Exception as e:
-        app.logger.error(f"AI therapist error: {str(e)}")
-        flash('Unable to load AI therapist. Please try again later.', 'error')
-        return redirect(url_for('index'))
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/ai-dashboard')
 @login_required
