@@ -182,6 +182,27 @@
                 </div>
                 {% endfor %}
             </div>
+            <!-- Add Today's Goal Form -->
+            <form id="addGoalForm" class="mt-6 space-y-4" autocomplete="off">
+                <h3 class="text-lg font-semibold text-aura-charcoal dark:text-white">Add a Goal for Today</h3>
+                <div>
+                    <label for="goal_title" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Goal Title</label>
+                    <input type="text" id="goal_title" name="title" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="e.g. Meditate for 10 minutes">
+                </div>
+                <div>
+                    <label for="goal_category" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Category</label>
+                    <input type="text" id="goal_category" name="category" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="e.g. Wellness">
+                </div>
+                <div>
+                    <label for="goal_time" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Scheduled Time</label>
+                    <input type="time" id="goal_time" name="time" class="mt-1 block w-40 rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                </div>
+                <div>
+                    <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Add Goal
+                    </button>
+                </div>
+            </form>
         </div>
 
         <!-- Milestones -->
@@ -218,9 +239,88 @@
                 {% endfor %}
             </div>
         </div>
+
+        <!-- Mood History Section -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8 mt-8">
+            <h2 class="text-xl font-bold text-aura-charcoal dark:text-white mb-4 flex items-center">
+                <i data-lucide="activity" class="w-5 h-5 mr-2 text-purple-500" aria-hidden="true"></i>
+                Mood History
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Mood Chart -->
+                <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                    <canvas id="progressMoodChart" class="h-64 w-full" role="img" aria-label="Mood history chart"></canvas>
+                </div>
+                <!-- Recent Mood Entries -->
+                <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg" aria-live="polite">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Recent Mood Entries</h3>
+                    <ul class="divide-y divide-gray-200 dark:divide-gray-700">
+                        {% for entry in mood_entries[:10] %}
+                        <li class="py-2 flex items-center space-x-3">
+                            <span class="text-2xl" aria-label="{{ entry.mood|capitalize }}">
+                                {% if entry.mood == 'very_happy' %}😄{% elif entry.mood == 'happy' %}🙂{% elif entry.mood == 'neutral' %}😐{% elif entry.mood == 'sad' %}😔{% elif entry.mood == 'very_sad' %}😢{% endif %}
+                            </span>
+                            <div class="flex-1">
+                                <span class="font-medium text-aura-charcoal dark:text-white">{{ entry.mood.replace('_', ' ')|capitalize }}</span>
+                                <span class="block text-xs text-gray-500 dark:text-gray-400">{{ entry.created_at.strftime('%b %d, %Y %I:%M %p') }}</span>
+                                {% if entry.notes %}<span class="block text-sm text-gray-600 dark:text-gray-300 mt-1">{{ entry.notes }}</span>{% endif %}
+                            </div>
+                        </li>
+                        {% else %}
+                        <li class="py-2 text-gray-500 dark:text-gray-400">No mood entries yet. Start logging your mood!</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mood Entry Section (Progress Page) -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-xl font-bold text-aura-charcoal dark:text-white mb-4 flex items-center">
+                <i data-lucide="smile" class="w-5 h-5 mr-2 text-green-500" aria-hidden="true"></i>
+                Log Your Mood (This will reflect in your AI Dashboard)
+            </h2>
+            <form id="progressMoodEntryForm" class="space-y-4">
+                <div class="mood-selector">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">Select your mood:</label>
+                    <div class="grid grid-cols-5 gap-4" role="radiogroup" aria-label="Mood selection">
+                        <button type="button" class="mood-option p-4 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 focus:outline-none focus:ring-2 focus:ring-blue-500" data-mood="very_happy" aria-label="Very Happy">
+                            <span class="text-4xl">😄</span>
+                            <span class="block text-sm mt-2">Very Happy</span>
+                        </button>
+                        <button type="button" class="mood-option p-4 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 focus:outline-none focus:ring-2 focus:ring-blue-500" data-mood="happy" aria-label="Happy">
+                            <span class="text-4xl">🙂</span>
+                            <span class="block text-sm mt-2">Happy</span>
+                        </button>
+                        <button type="button" class="mood-option p-4 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 focus:outline-none focus:ring-2 focus:ring-blue-500" data-mood="neutral" aria-label="Neutral">
+                            <span class="text-4xl">😐</span>
+                            <span class="block text-sm mt-2">Neutral</span>
+                        </button>
+                        <button type="button" class="mood-option p-4 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 focus:outline-none focus:ring-2 focus:ring-blue-500" data-mood="sad" aria-label="Sad">
+                            <span class="text-4xl">😔</span>
+                            <span class="block text-sm mt-2">Sad</span>
+                        </button>
+                        <button type="button" class="mood-option p-4 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 focus:outline-none focus:ring-2 focus:ring-blue-500" data-mood="very_sad" aria-label="Very Sad">
+                            <span class="text-4xl">😢</span>
+                            <span class="block text-sm mt-2">Very Sad</span>
+                        </button>
+                    </div>
+                </div>
+                <div>
+                    <label for="progress_notes" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Notes (Optional):</label>
+                    <textarea id="progress_notes" name="notes" rows="3" class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Write about your day..." aria-label="Mood notes"></textarea>
+                </div>
+                <div>
+                    <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" aria-label="Log mood">
+                        Log Mood
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     async function toggleGoal(goalId) {
         try {
@@ -243,5 +343,128 @@
             showFlashMessage('Error updating goal', 'error');
         }
     }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Mood History Chart for Progress Page
+        const progressMoodChartElem = document.getElementById('progressMoodChart');
+        if (progressMoodChartElem) {
+            const moodLabels = [{% for entry in mood_entries[:30] %}'{{ entry.created_at.strftime('%b %d') }}'{% if not loop.last %},{% endif %}{% endfor %}];
+            const moodData = [{% for entry in mood_entries[:30] %}{% if entry.mood == 'very_happy' %}5{% elif entry.mood == 'happy' %}4{% elif entry.mood == 'neutral' %}3{% elif entry.mood == 'sad' %}2{% elif entry.mood == 'very_sad' %}1{% else %}3{% endif %}{% if not loop.last %},{% endif %}{% endfor %}];
+            new Chart(progressMoodChartElem.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: moodLabels,
+                    datasets: [{
+                        label: 'Mood Score',
+                        data: moodData,
+                        borderColor: 'rgb(139, 92, 246)',
+                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            min: 1,
+                            max: 5,
+                            ticks: {
+                                stepSize: 1,
+                                callback: function(value) {
+                                    const moodMapping = {1: '😢', 2: '😔', 3: '😐', 4: '🙂', 5: '😄'};
+                                    return moodMapping[value];
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Mood Entry Form Logic for Progress Page
+        const moodOptions = document.querySelectorAll('#progressMoodEntryForm .mood-option');
+        let selectedMood = null;
+        moodOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                moodOptions.forEach(opt => opt.classList.remove('ring-2', 'ring-blue-500'));
+                option.classList.add('ring-2', 'ring-blue-500');
+                selectedMood = option.dataset.mood;
+            });
+            option.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    option.click();
+                }
+            });
+        });
+        const form = document.getElementById('progressMoodEntryForm');
+        if (form) {
+            form.addEventListener('submit', async function(event) {
+                event.preventDefault();
+                if (!selectedMood) {
+                    alert('Please select a mood');
+                    return;
+                }
+                const notes = document.getElementById('progress_notes').value;
+                try {
+                    const response = await fetch('/api/mood', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ mood: selectedMood, notes: notes })
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        const notification = document.createElement('div');
+                        notification.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform transition-transform duration-300 translate-y-0';
+                        notification.textContent = 'Mood logged successfully!';
+                        document.body.appendChild(notification);
+                        setTimeout(() => {
+                            notification.style.transform = 'translateY(100%)';
+                            setTimeout(() => notification.remove(), 300);
+                        }, 3000);
+                        moodOptions.forEach(opt => opt.classList.remove('ring-2', 'ring-blue-500'));
+                        document.getElementById('progress_notes').value = '';
+                        selectedMood = null;
+                        location.reload(); // Refresh to show updated mood history
+                    } else {
+                        throw new Error(data.message || 'Failed to log mood');
+                    }
+                } catch (error) {
+                    alert('An error occurred while logging your mood. Please try again.');
+                }
+            });
+        }
+
+        // Add Today's Goal Form Logic
+        const addGoalForm = document.getElementById('addGoalForm');
+        if (addGoalForm) {
+            addGoalForm.addEventListener('submit', async function(event) {
+                event.preventDefault();
+                const title = document.getElementById('goal_title').value;
+                const category = document.getElementById('goal_category').value;
+                const time = document.getElementById('goal_time').value;
+                try {
+                    const response = await fetch('/api/goal', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ title: title, category: category, time: time })
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert(data.message || 'Failed to add goal');
+                    }
+                } catch (error) {
+                    alert('An error occurred while adding your goal. Please try again.');
+                }
+            });
+        }
+    });
 </script>
 {% endblock %}

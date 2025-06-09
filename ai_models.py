@@ -552,7 +552,17 @@ class MoodAnalyzer:
     def analyze_mood_trend(self, mood_entries):
         """Analyze mood trend over time with advanced analytics"""
         if not mood_entries:
-            return {'trend': 'insufficient_data', 'analysis': 'Not enough mood data to analyze'}
+            return {
+                'trend': 'insufficient_data',
+                'analysis': 'Not enough mood data to analyze',
+                'trend_strength': 0.0,
+                'average_mood': 3,
+                'mood_variance': 0,
+                'mood_stability': 1.0,
+                'recent_mood': 3,
+                'patterns': [],
+                'recommendations': []
+            }
         
         # Convert moods to numerical values with timestamps
         mood_data = []
@@ -566,7 +576,17 @@ class MoodAnalyzer:
                 })
         
         if len(mood_data) < 3:
-            return {'trend': 'insufficient_data', 'analysis': 'Need more mood entries for analysis'}
+            return {
+                'trend': 'insufficient_data',
+                'analysis': 'Need more mood entries for analysis',
+                'trend_strength': 0.0,
+                'average_mood': 3,
+                'mood_variance': 0,
+                'mood_stability': 1.0,
+                'recent_mood': 3,
+                'patterns': [],
+                'recommendations': []
+            }
         
         # Extract mood values for analysis
         mood_values = [entry['value'] for entry in mood_data]

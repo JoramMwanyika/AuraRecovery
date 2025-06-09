@@ -4,6 +4,7 @@ let isTyping = false;
 document.addEventListener('DOMContentLoaded', function() {
     loadAIInsights();
     setupChatInterface();
+    initializeMoodTracking();
 });
 
 async function loadAIInsights() {
@@ -223,4 +224,267 @@ function sendQuickMessage(message) {
     messageInput.value = message;
     messageInput.dispatchEvent(new Event('input'));
     sendMessage(message);
+}
+
+// Initialize mood tracking functionality
+function initializeMoodTracking() {
+    // Initialize mood charts
+    let moodHistoryChart = null;
+    let moodTrendsChart = null;
+    
+    // Initialize charts
+    initializeCharts();
+    
+    // Set up mood entry form
+    const moodEntryForm = document.getElementById('moodEntryForm');
+    if (moodEntryForm) {
+        moodEntryForm.addEventListener('submit', handleMoodEntry);
+    }
+    
+    // Set up mood selection
+    const moodOptions = document.querySelectorAll('.mood-option');
+    let selectedMood = null;
+    
+    moodOptions.forEach(option => {
+        option.addEventListener('click', () => {
+            moodOptions.forEach(opt => opt.classList.remove('ring-2', 'ring-blue-500'));
+            option.classList.add('ring-2', 'ring-blue-500');
+            selectedMood = option.dataset.mood;
+        });
+        
+        // Keyboard navigation
+        option.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                option.click();
+            }
+        });
+    });
+}
+
+// Initialize charts
+function initializeCharts() {
+    // Initialize mood history chart
+    const moodCtx = document.getElementById('moodChart');
+    if (moodCtx) {
+        moodHistoryChart = new Chart(moodCtx.getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Mood Score',
+                    data: [],
+                    borderColor: 'rgb(59, 130, 246)',
+                    tension: 0.4,
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const moodMapping = {
+                                    1: 'Very Sad',
+                                    2: 'Sad',
+                                    3: 'Neutral',
+                                    4: 'Happy',
+                                    5: 'Very Happy'
+                                };
+                                return `Mood: ${moodMapping[context.raw]}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        min: 1,
+                        max: 5,
+                        ticks: {
+                            stepSize: 1,
+                            callback: function(value) {
+                                const moodMapping = {
+                                    1: '😢',
+                                    2: '😔',
+                                    3: '😐',
+                                    4: '🙂',
+                                    5: '😄'
+                                };
+                                return moodMapping[value];
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    // Initialize mood trends chart
+    const trendsCtx = document.getElementById('moodTrendsChart');
+    if (trendsCtx) {
+        moodTrendsChart = new Chart(trendsCtx.getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: ['Very Happy', 'Happy', 'Neutral', 'Sad', 'Very Sad'],
+                datasets: [{
+                    label: 'Mood Distribution',
+                    data: [0, 0, 0, 0, 0],
+                    backgroundColor: [
+                        'rgb(34, 197, 94)',  // Green
+                        'rgb(59, 130, 246)', // Blue
+                        'rgb(156, 163, 175)', // Gray
+                        'rgb(234, 179, 8)',  // Yellow
+                        'rgb(239, 68, 68)'   // Red
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    // Load initial data
+    loadMoodData();
+}
+
+// Load mood data from API
+async function loadMoodData() {
+    try {
+        const response = await fetch('/api/mood/history');
+        const data = await response.json();
+        
+        if (data.success) {
+            updateMoodCharts(data);
+        } else {
+            console.error('Failed to load mood data:', data.message);
+        }
+    } catch (error) {
+        console.error('Error loading mood data:', error);
+    }
+}
+
+// Update mood charts with new data
+function updateMoodCharts(data) {
+    if (moodHistoryChart) {
+        // Update mood history chart
+        const dates = data.history.map(entry => entry.date);
+        const moods = data.history.map(entry => entry.mood);
+        
+        moodHistoryChart.data.labels = dates;
+        moodHistoryChart.data.datasets[0].data = moods;
+        moodHistoryChart.update();
+    }
+    
+    if (moodTrendsChart) {
+        // Update mood distribution chart
+        const distribution = data.distribution;
+        moodTrendsChart.data.datasets[0].data = [
+            distribution.very_happy,
+            distribution.happy,
+            distribution.neutral,
+            distribution.sad,
+            distribution.very_sad
+        ];
+        moodTrendsChart.update();
+    }
+}
+
+// Handle mood entry form submission
+async function handleMoodEntry(event) {
+    event.preventDefault();
+    
+    const form = event.target;
+    const selectedMood = form.querySelector('.mood-option.ring-2')?.dataset.mood;
+    const notes = form.querySelector('#notes').value;
+    
+    if (!selectedMood) {
+        showNotification('Please select a mood', 'error');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/mood', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                mood: selectedMood,
+                notes: notes
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            // Show success notification
+            showNotification('Mood logged successfully!', 'success');
+            
+            // Reset form
+            form.reset();
+            document.querySelectorAll('.mood-option').forEach(opt => {
+                opt.classList.remove('ring-2', 'ring-blue-500');
+            });
+            
+            // Reload mood data
+            loadMoodData();
+            
+            // Update mood analysis section if available
+            if (data.analysis) {
+                updateMoodAnalysis(data.analysis);
+            }
+        } else {
+            showNotification(data.message || 'Failed to log mood', 'error');
+        }
+    } catch (error) {
+        console.error('Error logging mood:', error);
+        showNotification('An error occurred while logging your mood', 'error');
+    }
+}
+
+// Update mood analysis section
+function updateMoodAnalysis(analysis) {
+    const analysisSection = document.querySelector('#mood-analysis-heading').closest('section');
+    if (analysisSection) {
+        const insightsDiv = analysisSection.querySelector('.prose');
+        if (insightsDiv) {
+            insightsDiv.innerHTML = analysis.analysis;
+        }
+    }
+}
+
+// Show notification
+function showNotification(message, type = 'success') {
+    const notification = document.createElement('div');
+    notification.className = `fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg transform transition-transform duration-300 translate-y-0 ${
+        type === 'success' ? 'bg-green-500' : 'bg-red-500'
+    } text-white`;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    
+    // Remove notification after 3 seconds
+    setTimeout(() => {
+        notification.style.transform = 'translateY(100%)';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
 } 

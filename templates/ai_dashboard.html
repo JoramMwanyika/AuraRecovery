@@ -5,44 +5,117 @@
 {% block content %}
 <div class="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
     <!-- Header -->
-    <header class="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl shadow-sm border-b border-gray-200/20 dark:border-gray-700/20">
+    <header class="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl shadow-sm border-b border-gray-200/20 dark:border-gray-700/20 sticky top-0 z-50">
         <div class="container mx-auto px-4 py-4 flex items-center justify-between">
             <div class="flex items-center space-x-4">
-                <a href="{{ url_for('index') }}" class="flex items-center space-x-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                    <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                <a href="{{ url_for('index') }}" class="flex items-center space-x-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg p-2" role="button" aria-label="Back to Home">
+                    <i data-lucide="arrow-left" class="w-5 h-5" aria-hidden="true"></i>
                     <span>Back to Home</span>
                 </a>
                 <div class="flex items-center space-x-2">
                     <div class="w-8 h-8 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-lg flex items-center justify-center shadow-lg">
-                        <i data-lucide="brain" class="w-5 h-5 text-white"></i>
+                        <i data-lucide="brain" class="w-5 h-5 text-white" aria-hidden="true"></i>
                     </div>
-                    <span class="text-xl font-bold text-gray-900 dark:text-white">AI Dashboard</span>
+                    <h1 class="text-xl font-bold text-gray-900 dark:text-white">AI Dashboard</h1>
                 </div>
             </div>
+            <button id="themeToggle" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="Toggle dark mode">
+                <i data-lucide="moon" class="w-5 h-5 text-gray-600 dark:text-gray-300" aria-hidden="true"></i>
+            </button>
         </div>
     </header>
 
     <!-- Main Content -->
     <main class="container mx-auto px-4 py-8">
-        <!-- Risk Analysis Section -->
-        <section class="mb-8">
+        <!-- Quick Mood Entry Section -->
+        <section class="mb-8" aria-labelledby="mood-entry-heading">
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200/20 dark:border-gray-700/20">
-                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
-                    <i data-lucide="alert-triangle" class="w-6 h-6 mr-2 text-red-500"></i>
+                <h2 id="mood-entry-heading" class="text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+                    <i data-lucide="smile" class="w-6 h-6 mr-2 text-green-500" aria-hidden="true"></i>
+                    How are you feeling today?
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Mood Selection -->
+                    <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                        <form id="moodEntryForm" class="space-y-4">
+                            <div class="mood-selector">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">Select your mood:</label>
+                                <div class="grid grid-cols-5 gap-4" role="radiogroup" aria-label="Mood selection">
+                                    <button type="button" class="mood-option p-4 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 focus:outline-none focus:ring-2 focus:ring-blue-500" data-mood="very_happy" aria-label="Very Happy">
+                                        <span class="text-4xl">😄</span>
+                                        <span class="block text-sm mt-2">Very Happy</span>
+                                    </button>
+                                    <button type="button" class="mood-option p-4 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 focus:outline-none focus:ring-2 focus:ring-blue-500" data-mood="happy" aria-label="Happy">
+                                        <span class="text-4xl">🙂</span>
+                                        <span class="block text-sm mt-2">Happy</span>
+                                    </button>
+                                    <button type="button" class="mood-option p-4 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 focus:outline-none focus:ring-2 focus:ring-blue-500" data-mood="neutral" aria-label="Neutral">
+                                        <span class="text-4xl">😐</span>
+                                        <span class="block text-sm mt-2">Neutral</span>
+                                    </button>
+                                    <button type="button" class="mood-option p-4 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 focus:outline-none focus:ring-2 focus:ring-blue-500" data-mood="sad" aria-label="Sad">
+                                        <span class="text-4xl">😔</span>
+                                        <span class="block text-sm mt-2">Sad</span>
+                                    </button>
+                                    <button type="button" class="mood-option p-4 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 focus:outline-none focus:ring-2 focus:ring-blue-500" data-mood="very_sad" aria-label="Very Sad">
+                                        <span class="text-4xl">😢</span>
+                                        <span class="block text-sm mt-2">Very Sad</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div>
+                                <label for="notes" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Notes (Optional):</label>
+                                <textarea id="notes" name="notes" rows="3" class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Write about your day..." aria-label="Mood notes"></textarea>
+                            </div>
+                            <div>
+                                <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" aria-label="Log mood">
+                                    Log Mood
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    <!-- Mood History -->
+                    <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Mood History</h3>
+                        <div id="moodChart" class="h-64" role="img" aria-label="Mood history chart"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Risk Analysis Section -->
+        <section class="mb-8" aria-labelledby="risk-analysis-heading">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200/20 dark:border-gray-700/20">
+                <h2 id="risk-analysis-heading" class="text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+                    <i data-lucide="alert-triangle" class="w-6 h-6 mr-2 text-red-500" aria-hidden="true"></i>
                     Risk Analysis
                 </h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
                         <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Risk Level</h3>
-                        <p class="text-3xl font-bold text-{{ 'red' if risk_analysis.risk_level == 'high' else 'yellow' if risk_analysis.risk_level == 'medium' else 'green' }}-500">
-                            {{ risk_analysis.risk_level | title }}
-                        </p>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold text-white
+                                {% if risk_analysis.risk_level == 'high' %}bg-red-500
+                                {% elif risk_analysis.risk_level == 'medium' %}bg-yellow-500
+                                {% else %}bg-green-500{% endif %}">
+                                {{ risk_analysis.risk_level | title | first }}
+                            </div>
+                            <div>
+                                <p class="text-2xl font-bold text-{{ 'red' if risk_analysis.risk_level == 'high' else 'yellow' if risk_analysis.risk_level == 'medium' else 'green' }}-500">
+                                    {{ risk_analysis.risk_level | title }}
+                                </p>
+                                <p class="text-sm text-gray-600 dark:text-gray-300">Updated {{ risk_analysis.updated_at | default('today') }}</p>
+                            </div>
+                        </div>
                     </div>
                     <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
                         <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Risk Factors</h3>
-                        <ul class="list-disc list-inside text-gray-600 dark:text-gray-300">
+                        <ul class="list-disc list-inside text-gray-600 dark:text-gray-300 space-y-2">
                             {% for factor in risk_analysis.factors %}
-                            <li>{{ factor }}</li>
+                            <li class="flex items-start">
+                                <span class="inline-block w-2 h-2 rounded-full bg-red-500 mt-2 mr-2"></span>
+                                <span>{{ factor }}</span>
+                            </li>
                             {% endfor %}
                         </ul>
                     </div>
@@ -51,73 +124,200 @@
         </section>
 
         <!-- Mood Analysis Section -->
-        <section class="mb-8">
+        <section class="mb-8" aria-labelledby="mood-analysis-heading">
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200/20 dark:border-gray-700/20">
-                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
-                    <i data-lucide="activity" class="w-6 h-6 mr-2 text-blue-500"></i>
+                <h2 id="mood-analysis-heading" class="text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+                    <i data-lucide="activity" class="w-6 h-6 mr-2 text-blue-500" aria-hidden="true"></i>
                     Mood Analysis
                 </h2>
-                <div class="prose dark:prose-invert max-w-none">
-                    {{ mood_analysis | safe }}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Mood Trends</h3>
+                        <div id="moodTrendsChart" class="h-64" role="img" aria-label="Mood trends chart"></div>
+                    </div>
+                    <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg" aria-live="polite">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Insights</h3>
+                        <div class="prose dark:prose-invert max-w-none">
+                            {% set analysis = mood_analysis.analysis if mood_analysis.analysis is mapping else mood_analysis.get('analysis', {}) %}
+                            {% if analysis.analysis %}
+                                <p>{{ analysis.analysis }}</p>
+                            {% else %}
+                                <p>No mood data available yet. Start tracking your mood to get personalized insights.</p>
+                            {% endif %}
+                            {% if mood_analysis.insights %}
+                                <ul>
+                                {% for insight in mood_analysis.insights %}
+                                    <li>
+                                        <strong>{{ insight.type|capitalize }}:</strong> {{ insight.message }}
+                                        {% if insight.recommendation %}<br><em>Recommendation:</em> {{ insight.recommendation }}{% endif %}
+                                    </li>
+                                {% endfor %}
+                                </ul>
+                            {% endif %}
+                            {% if mood_analysis.patterns %}
+                                <ul>
+                                {% for pattern in mood_analysis.patterns %}
+                                    <li>
+                                        <strong>Pattern:</strong> {{ pattern.description }}
+                                        {% if pattern.severity %} ({{ pattern.severity|capitalize }}){% endif %}
+                                    </li>
+                                {% endfor %}
+                                </ul>
+                            {% endif %}
+                            {% if mood_analysis.recommendations %}
+                                <ul>
+                                {% for rec in mood_analysis.recommendations %}
+                                    <li>
+                                        <strong>Tip:</strong> {{ rec.message }}
+                                    </li>
+                                {% endfor %}
+                                </ul>
+                            {% endif %}
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
 
         <!-- Recommendations Section -->
-        <section class="mb-8">
+        <section class="mb-8" aria-labelledby="recommendations-heading">
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200/20 dark:border-gray-700/20">
-                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
-                    <i data-lucide="star" class="w-6 h-6 mr-2 text-purple-500"></i>
+                <h2 id="recommendations-heading" class="text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+                    <i data-lucide="star" class="w-6 h-6 mr-2 text-purple-500" aria-hidden="true"></i>
                     Personalized Recommendations
                 </h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {% for recommendation in recommendations %}
-                    <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">{{ recommendation.title }}</h3>
-                        <p class="text-gray-600 dark:text-gray-300">{{ recommendation.description }}</p>
+                    <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg hover:shadow-md transition-shadow">
+                        <div class="flex items-start space-x-3">
+                            <div class="flex-shrink-0">
+                                <i data-lucide="{{ recommendation.icon | default('lightbulb') }}" class="w-6 h-6 text-{{ recommendation.color | default('blue') }}-500" aria-hidden="true"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">{{ recommendation.title }}</h3>
+                                <p class="text-gray-600 dark:text-gray-300">{{ recommendation.description }}</p>
+                                {% if recommendation.action %}
+                                <button class="mt-3 text-sm text-blue-600 dark:text-blue-400 hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 rounded">
+                                    {{ recommendation.action }}
+                                </button>
+                                {% endif %}
+                            </div>
+                        </div>
                     </div>
                     {% endfor %}
                 </div>
             </div>
         </section>
-
-        <!-- Mood Entry Section -->
-        <section class="mb-8">
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200/20 dark:border-gray-700/20">
-                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
-                    <i data-lucide="smile" class="w-6 h-6 mr-2 text-green-500"></i>
-                    Log Your Mood
-                </h2>
-                <form id="moodEntryForm" class="space-y-4">
-                    <div>
-                        <label for="mood" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Select your mood today:</label>
-                        <select id="mood" name="mood" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                            <option value="very_happy">Very Happy</option>
-                            <option value="happy">Happy</option>
-                            <option value="neutral">Neutral</option>
-                            <option value="sad">Sad</option>
-                            <option value="very_sad">Very Sad</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="notes" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Notes (Optional):</label>
-                        <textarea id="notes" name="notes" rows="3" class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Write about your day..."></textarea>
-                    </div>
-                    <div>
-                        <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                            Log Mood
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </section>
     </main>
 </div>
 
+<!-- Accessibility Skip Link -->
+<a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-0 focus:left-0 focus:z-50 focus:p-4 focus:bg-white focus:text-blue-600">
+    Skip to main content
+</a>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Initialize Lucide icons
         lucide.createIcons();
+
+        // Theme toggle
+        const themeToggle = document.getElementById('themeToggle');
+        themeToggle.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+            const icon = themeToggle.querySelector('i');
+            if (document.documentElement.classList.contains('dark')) {
+                icon.setAttribute('data-lucide', 'sun');
+            } else {
+                icon.setAttribute('data-lucide', 'moon');
+            }
+            lucide.createIcons();
+        });
+
+        // Mood selection
+        const moodOptions = document.querySelectorAll('.mood-option');
+        let selectedMood = null;
+
+        moodOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                moodOptions.forEach(opt => opt.classList.remove('ring-2', 'ring-blue-500'));
+                option.classList.add('ring-2', 'ring-blue-500');
+                selectedMood = option.dataset.mood;
+            });
+
+            // Keyboard navigation
+            option.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    option.click();
+                }
+            });
+        });
+
+        // Initialize mood charts
+        const moodCtx = document.getElementById('moodChart').getContext('2d');
+        const moodTrendsCtx = document.getElementById('moodTrendsChart').getContext('2d');
+
+        // Mood history chart
+        new Chart(moodCtx, {
+            type: 'line',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [{
+                    label: 'Mood Score',
+                    data: [4, 3, 5, 4, 3, 4, 5],
+                    borderColor: 'rgb(59, 130, 246)',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        min: 1,
+                        max: 5,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+
+        // Mood trends chart
+        new Chart(moodTrendsCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Very Happy', 'Happy', 'Neutral', 'Sad', 'Very Sad'],
+                datasets: [{
+                    label: 'Mood Distribution',
+                    data: [3, 5, 4, 2, 1],
+                    backgroundColor: [
+                        'rgb(34, 197, 94)',
+                        'rgb(59, 130, 246)',
+                        'rgb(156, 163, 175)',
+                        'rgb(234, 179, 8)',
+                        'rgb(239, 68, 68)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
 
         // Handle Mood Entry Form Submission
         const moodEntryForm = document.getElementById('moodEntryForm');
@@ -125,30 +325,53 @@
             moodEntryForm.addEventListener('submit', async function(event) {
                 event.preventDefault();
 
-                const mood = document.getElementById('mood').value;
+                if (!selectedMood) {
+                    alert('Please select a mood');
+                    return;
+                }
+
                 const notes = document.getElementById('notes').value;
 
                 try {
-                    const response = await fetch('/api/mood-entry', {
+                    const response = await fetch('/api/mood', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify({ mood: mood, notes: notes })
+                        body: JSON.stringify({ 
+                            mood: selectedMood, 
+                            notes: notes 
+                        })
                     });
 
                     const data = await response.json();
 
                     if (data.success) {
-                        alert('Mood logged successfully!'); // Or show a more integrated notification
-                        // Optionally refresh the page or update mood analysis section
-                        // window.location.reload();
+                        // Show success notification
+                        const notification = document.createElement('div');
+                        notification.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform transition-transform duration-300 translate-y-0';
+                        notification.textContent = 'Mood logged successfully!';
+                        document.body.appendChild(notification);
+
+                        // Remove notification after 3 seconds
+                        setTimeout(() => {
+                            notification.style.transform = 'translateY(100%)';
+                            setTimeout(() => notification.remove(), 300);
+                        }, 3000);
+
+                        // Reset form
+                        moodOptions.forEach(opt => opt.classList.remove('ring-2', 'ring-blue-500'));
+                        document.getElementById('notes').value = '';
+                        selectedMood = null;
+
+                        // Refresh charts
+                        // You would typically fetch new data and update the charts here
                     } else {
-                        alert('Failed to log mood: ' + data.message);
+                        throw new Error(data.message || 'Failed to log mood');
                     }
                 } catch (error) {
                     console.error('Error logging mood:', error);
-                    alert('An error occurred while logging your mood.');
+                    alert('An error occurred while logging your mood. Please try again.');
                 }
             });
         }

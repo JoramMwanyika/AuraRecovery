@@ -1016,28 +1016,45 @@ def profile():
 @login_required
 def progress():
     stats = get_user_stats(current_user)
-    
+    today = datetime.utcnow().date()
+    # Check if user has goals for today
     today_goals = DailyGoal.query.filter(
         DailyGoal.user_id == current_user.id,
-        DailyGoal.date == datetime.utcnow().date()
+        DailyGoal.date == today
     ).all()
-    
+    if not today_goals:
+        # Define your default goals here
+        default_goals = [
+            {'title': 'Drink 8 glasses of water', 'category': 'Wellness', 'scheduled_time': '08:00'},
+            {'title': 'Take a 10-minute walk', 'category': 'Exercise', 'scheduled_time': '12:00'},
+            {'title': 'Reflect for 5 minutes', 'category': 'Mindfulness', 'scheduled_time': '20:00'}
+        ]
+        for goal in default_goals:
+            new_goal = DailyGoal(
+                user_id=current_user.id,
+                title=goal['title'],
+                category=goal['category'],
+                scheduled_time=goal['scheduled_time'],
+                date=today
+            )
+            db.session.add(new_goal)
+        db.session.commit()
+        today_goals = DailyGoal.query.filter(
+            DailyGoal.user_id == current_user.id,
+            DailyGoal.date == today
+        ).all()
     week_ago = datetime.utcnow() - timedelta(days=7)
     mood_entries = MoodEntry.query.filter(
         MoodEntry.user_id == current_user.id,
         MoodEntry.created_at >= week_ago
     ).order_by(MoodEntry.created_at.desc()).all()
-    
     milestones = Milestone.query.filter_by(user_id=current_user.id).all()
-    
     sobriety_days = stats['sobriety_days']
     for milestone in milestones:
         if not milestone.achieved and sobriety_days >= milestone.target_days:
             milestone.achieved = True
             milestone.achieved_at = datetime.utcnow()
-    
     db.session.commit()
-    
     return render_template('progress.html', 
                          user=current_user,
                          stats=stats,
@@ -1387,18 +1404,110 @@ def join_session(session_id):
 @app.route('/api/mood', methods=['POST'])
 @login_required
 def log_mood():
-    data = request.get_json()
-    
-    mood_entry = MoodEntry(
-        user_id=current_user.id,
-        mood=data.get('mood'),
-        notes=data.get('notes', '')
-    )
-    
-    db.session.add(mood_entry)
-    db.session.commit()
-    
-    return jsonify({'success': True, 'message': 'Mood logged successfully'})
+    """Log a new mood entry"""
+    try:
+        data = request.get_json()
+        
+        # Validate mood value
+        valid_moods = ['very_happy', 'happy', 'neutral', 'sad', 'very_sad']
+        if data.get('mood') not in valid_moods:
+            return jsonify({
+                'success': False,
+                'message': 'Invalid mood value'
+            }), 400
+        
+        # Create mood entry
+        mood_entry = MoodEntry(
+            user_id=current_user.id,
+            mood=data.get('mood'),
+            notes=data.get('notes', '')
+        )
+        
+        db.session.add(mood_entry)
+        db.session.commit()
+        
+        # Get updated mood analysis
+        mood_analysis = AIService.analyze_mood_patterns(current_user)
+        
+        return jsonify({
+            'success': True,
+            'message': 'Mood logged successfully',
+            'analysis': mood_analysis
+        })
+        
+    except Exception as e:
+        app.logger.error(f"Error logging mood: {str(e)}")
+        return jsonify({
+            'success': False,
+            'message': 'Failed to log mood'
+        }), 500
+
+@app.route('/api/mood/history')
+@login_required
+def get_mood_history():
+    """Get mood history for charts"""
+    try:
+        # Get mood entries from last 30 days
+        thirty_days_ago = datetime.utcnow() - timedelta(days=30)
+        mood_entries = MoodEntry.query.filter(
+            MoodEntry.user_id == current_user.id,
+            MoodEntry.created_at >= thirty_days_ago
+        ).order_by(MoodEntry.created_at).all()
+        
+        # Convert to format for charts
+        mood_mapping = {'very_sad': 1, 'sad': 2, 'neutral': 3, 'happy': 4, 'very_happy': 5}
+        
+        history_data = []
+        for entry in mood_entries:
+            history_data.append({
+                'date': entry.created_at.strftime('%Y-%m-%d'),
+                'mood': mood_mapping.get(entry.mood, 3),
+                'notes': entry.notes
+            })
+        
+        # Get mood distribution
+        mood_counts = {
+            'very_happy': 0,
+            'happy': 0,
+            'neutral': 0,
+            'sad': 0,
+            'very_sad': 0
+        }
+        
+        for entry in mood_entries:
+            mood_counts[entry.mood] += 1
+        
+        return jsonify({
+            'success': True,
+            'history': history_data,
+            'distribution': mood_counts
+        })
+        
+    except Exception as e:
+        app.logger.error(f"Error getting mood history: {str(e)}")
+        return jsonify({
+            'success': False,
+            'message': 'Failed to get mood history'
+        }), 500
+
+@app.route('/api/mood/trends')
+@login_required
+def get_mood_trends():
+    """Get mood trends and patterns"""
+    try:
+        mood_analysis = AIService.analyze_mood_patterns(current_user)
+        
+        return jsonify({
+            'success': True,
+            'trends': mood_analysis
+        })
+        
+    except Exception as e:
+        app.logger.error(f"Error getting mood trends: {str(e)}")
+        return jsonify({
+            'success': False,
+            'message': 'Failed to get mood trends'
+        }), 500
 
 @app.route('/api/goal/<int:goal_id>/toggle', methods=['POST'])
 @login_required
