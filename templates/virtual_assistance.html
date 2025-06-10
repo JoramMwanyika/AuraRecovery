@@ -1,0 +1,451 @@
+{% extends "base.html" %}
+{% block title %}Virtual Assistance - AuraRecovery{% endblock %}
+{% block content %}
+<div class="min-h-screen bg-aura-gray dark:bg-gray-900 transition-colors duration-300">
+    {% include 'includes/navbar.html' %}
+
+    <div class="container mx-auto px-4 py-8">
+        <!-- Page Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-aura-charcoal dark:text-white mb-2">Virtual Assistance</h1>
+            <p class="text-gray-600 dark:text-gray-300">Connect with verified healthcare professionals for personalized support</p>
+        </div>
+
+        <!-- Emergency Button -->
+        <div class="mb-8">
+            <button onclick="showEmergencyResources()" class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors flex items-center">
+                <i data-lucide="alert-triangle" class="w-5 h-5 mr-2"></i>
+                Emergency Support
+            </button>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Left Column: Professional Profiles & Booking -->
+            <div class="space-y-8">
+                <!-- Professional Profiles -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+                    <h2 class="text-xl font-bold text-aura-charcoal dark:text-white mb-4 flex items-center">
+                        <i data-lucide="users" class="w-5 h-5 mr-2 text-blue-500"></i>
+                        Available Professionals
+                    </h2>
+                    
+                    <!-- Search & Filter -->
+                    <div class="mb-6 space-y-4">
+                        <div class="flex space-x-4">
+                            <select class="flex-1 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                                <option value="">Specialization</option>
+                                <option value="addiction">Addiction Counseling</option>
+                                <option value="trauma">Trauma Therapy</option>
+                                <option value="mental-health">Mental Health</option>
+                            </select>
+                            <select class="flex-1 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                                <option value="">Language</option>
+                                <option value="en">English</option>
+                                <option value="es">Spanish</option>
+                                <option value="fr">French</option>
+                            </select>
+                        </div>
+                        <div class="flex space-x-4">
+                            <select class="flex-1 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                                <option value="">Gender Preference</option>
+                                <option value="any">Any</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                            </select>
+                            <input type="text" placeholder="Search professionals..." class="flex-1 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                        </div>
+                    </div>
+
+                    <!-- Professional Cards -->
+                    <div class="space-y-4">
+                        {% for professional in professionals %}
+                        <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow">
+                            <div class="flex items-start space-x-4">
+                                <div class="w-16 h-16 bg-aura-blue rounded-full flex items-center justify-center">
+                                    <span class="text-xl font-bold text-white">{{ professional.initials }}</span>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <h3 class="font-semibold text-aura-charcoal dark:text-white">{{ professional.name }}</h3>
+                                            <p class="text-sm text-gray-600 dark:text-gray-300">{{ professional.specialization }}</p>
+                                        </div>
+                                        <div class="flex items-center space-x-1">
+                                            <i data-lucide="star" class="w-4 h-4 text-yellow-400"></i>
+                                            <span class="text-sm font-medium">{{ professional.rating }}</span>
+                                        </div>
+                                    </div>
+                                    <p class="text-sm text-gray-600 dark:text-gray-300 mt-2">{{ professional.bio }}</p>
+                                    <div class="mt-4 flex space-x-2">
+                                        <button onclick="openBookingModal('{{ professional.id }}', '{{ professional.name }}')" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium">
+                                            Book Session
+                                        </button>
+                                        <button onclick="openChatModal('{{ professional.id }}', '{{ professional.name }}')" class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium">
+                                            Chat
+                                        </button>
+                                        <button onclick="viewProfile('{{ professional.id }}')" class="border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 px-4 py-2 rounded-lg text-sm font-medium">
+                                            View Profile
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Upcoming Sessions -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+                    <h2 class="text-xl font-bold text-aura-charcoal dark:text-white mb-4 flex items-center">
+                        <i data-lucide="calendar" class="w-5 h-5 mr-2 text-green-500"></i>
+                        Upcoming Sessions
+                    </h2>
+                    <div class="space-y-4">
+                        {% for session in upcoming_sessions %}
+                        <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-semibold text-aura-charcoal dark:text-white">{{ session.professional_name }}</h3>
+                                    <p class="text-sm text-gray-600 dark:text-gray-300">{{ session.date_time }}</p>
+                                    <p class="text-sm text-gray-600 dark:text-gray-300">{{ session.type }}</p>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button onclick="openLiveSessionModal('{{ session.id }}', '{{ session.professional_name }}', '{{ session.date_time }}', '{{ session.type }}')" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium">
+                                        Join
+                                    </button>
+                                    <button onclick="rescheduleSession('{{ session.id }}')" class="border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 px-4 py-2 rounded-lg text-sm font-medium">
+                                        Reschedule
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Messages & Treatment Plan -->
+            <div class="space-y-8">
+                <!-- Private Messages -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+                    <h2 class="text-xl font-bold text-aura-charcoal dark:text-white mb-4 flex items-center">
+                        <i data-lucide="message-square" class="w-5 h-5 mr-2 text-purple-500"></i>
+                        Messages
+                    </h2>
+                    <div class="space-y-4">
+                        {% for chat in active_chats %}
+                        <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-12 h-12 bg-aura-blue rounded-full flex items-center justify-center">
+                                    <span class="text-lg font-bold text-white">{{ chat.professional_initials }}</span>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <h3 class="font-semibold text-aura-charcoal dark:text-white">{{ chat.professional_name }}</h3>
+                                            <p class="text-sm text-gray-600 dark:text-gray-300">{{ chat.last_message }}</p>
+                                        </div>
+                                        <span class="text-xs text-gray-500">{{ chat.last_message_time }}</span>
+                                    </div>
+                                </div>
+                                <button onclick="openChatModal('{{ chat.professional_id }}', '{{ chat.professional_name }}')" class="ml-4 bg-purple-500 hover:bg-purple-600 text-white px-3 py-1 rounded-lg text-xs font-medium">Chat</button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Treatment Plan -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+                    <h2 class="text-xl font-bold text-aura-charcoal dark:text-white mb-4 flex items-center">
+                        <i data-lucide="clipboard-list" class="w-5 h-5 mr-2 text-indigo-500"></i>
+                        Treatment Plan
+                    </h2>
+                    <div class="space-y-4">
+                        <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                            <h3 class="font-semibold text-aura-charcoal dark:text-white mb-2">Current Plan</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-300">{{ treatment_plan.summary }}</p>
+                            <div class="mt-4">
+                                <h4 class="font-medium text-aura-charcoal dark:text-white mb-2">Recent Updates</h4>
+                                <div class="space-y-2">
+                                    {% if treatment_plan_updates and treatment_plan_updates|length > 0 %}
+                                        {% for update in treatment_plan_updates %}
+                                        <div class="text-sm text-gray-600 dark:text-gray-300">
+                                            <span class="font-medium">{{ update.date }}:</span> {{ update.note }}
+                                        </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        <div class="text-sm text-gray-400">No recent updates.</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Session History -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+                    <h2 class="text-xl font-bold text-aura-charcoal dark:text-white mb-4 flex items-center">
+                        <i data-lucide="history" class="w-5 h-5 mr-2 text-orange-500"></i>
+                        Session History
+                    </h2>
+                    <div class="space-y-4">
+                        {% for session in past_sessions %}
+                        <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-semibold text-aura-charcoal dark:text-white">{{ session.date }}</h3>
+                                    <p class="text-sm text-gray-600 dark:text-gray-300">{{ session.professional_name }}</p>
+                                    <p class="text-sm text-gray-600 dark:text-gray-300 mt-2">{{ session.summary }}</p>
+                                </div>
+                                <button onclick="openSessionDetailsModal('{{ session.id }}', '{{ session.professional_name }}', '{{ session.date }}', '{{ session.summary }}')" class="text-blue-500 hover:text-blue-600 text-sm font-medium">
+                                    View Details
+                                </button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Emergency Resources Modal -->
+<div id="emergencyModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center">
+    <div class="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-lg w-full mx-4">
+        <h2 class="text-2xl font-bold text-red-500 mb-4">Emergency Support</h2>
+        <div class="space-y-4">
+            <div class="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg">
+                <h3 class="font-semibold text-red-700 dark:text-red-300">24/7 Crisis Hotlines</h3>
+                <p class="text-red-600 dark:text-red-400 mt-2">If you're experiencing a crisis, please call:</p>
+                <ul class="mt-2 space-y-2">
+                    <li class="text-red-600 dark:text-red-400">National Crisis Hotline: 988</li>
+                    <li class="text-red-600 dark:text-red-400">SAMHSA Helpline: 1-800-662-4357</li>
+                </ul>
+            </div>
+            <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                <h3 class="font-semibold text-blue-700 dark:text-blue-300">Emergency Services</h3>
+                <p class="text-blue-600 dark:text-blue-400 mt-2">For immediate medical attention:</p>
+                <p class="text-blue-600 dark:text-blue-400 mt-2">Call 911 or go to your nearest emergency room</p>
+            </div>
+            <div class="flex justify-end mt-6">
+                <button onclick="closeEmergencyModal()" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 px-4 py-2 rounded-lg font-medium">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Booking Modal -->
+<div id="bookingModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 w-full max-w-md relative">
+        <button onclick="closeBookingModal()" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+            <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+        <h3 class="text-xl font-bold mb-4" id="bookingModalTitle">Book Session</h3>
+        <form id="bookingForm">
+            <input type="hidden" id="bookingProfessionalId" name="professional_id">
+            <div class="mb-3">
+                <label for="appointment_time" class="form-label">Date & Time</label>
+                <input type="datetime-local" class="form-control" id="appointment_time" name="appointment_time" required>
+            </div>
+            <div class="mb-3">
+                <label for="session_type" class="form-label">Session Type</label>
+                <select class="form-control" id="session_type" name="type">
+                    <option value="video">Video</option>
+                    <option value="audio">Audio</option>
+                    <option value="chat">Chat</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary w-full">Book</button>
+        </form>
+        <div id="bookingSuccess" class="text-green-600 mt-3 hidden">Session booked successfully!</div>
+        <div id="bookingError" class="text-red-600 mt-3 hidden"></div>
+    </div>
+</div>
+
+<!-- Chat Modal -->
+<div id="chatModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 w-full max-w-md relative flex flex-col" style="height: 500px;">
+        <button onclick="closeChatModal()" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+            <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+        <h3 class="text-xl font-bold mb-2" id="chatModalTitle">Chat</h3>
+        <div id="chatMessages" class="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900 rounded-lg p-3 mb-3" style="max-height: 320px;"></div>
+        <form id="chatForm" class="flex space-x-2">
+            <input type="hidden" id="chatProfessionalId">
+            <input type="text" id="chatInput" class="flex-1 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-3 py-2" placeholder="Type your message..." required>
+            <button type="submit" class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg font-medium">Send</button>
+        </form>
+        <div id="chatError" class="text-red-600 mt-2 hidden"></div>
+    </div>
+</div>
+
+<!-- Live Session Modal -->
+<div id="liveSessionModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 w-full max-w-md relative">
+        <button onclick="closeLiveSessionModal()" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+            <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+        <h3 class="text-xl font-bold mb-4" id="liveSessionTitle">Live Session</h3>
+        <div class="mb-4">
+            <p id="liveSessionInfo" class="text-gray-700 dark:text-gray-300"></p>
+        </div>
+        <div class="flex flex-col items-center">
+            <div class="bg-gray-100 dark:bg-gray-700 rounded-lg p-6 mb-4 w-full text-center">
+                <span class="text-lg text-gray-600 dark:text-gray-300">This is a placeholder for a live video/audio/chat session.<br>Integrate your video call service here.</span>
+            </div>
+            <button onclick="closeLiveSessionModal()" class="btn btn-primary">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- Session Details Modal -->
+<div id="sessionDetailsModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 w-full max-w-md relative">
+        <button onclick="closeSessionDetailsModal()" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+            <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+        <h3 class="text-xl font-bold mb-4" id="sessionDetailsTitle">Session Details</h3>
+        <div class="mb-4">
+            <p id="sessionDetailsInfo" class="text-gray-700 dark:text-gray-300"></p>
+        </div>
+        <button onclick="closeSessionDetailsModal()" class="btn btn-primary">Close</button>
+    </div>
+</div>
+
+<script>
+function showEmergencyResources() {
+    document.getElementById('emergencyModal').classList.remove('hidden');
+    document.getElementById('emergencyModal').classList.add('flex');
+}
+
+function closeEmergencyModal() {
+    document.getElementById('emergencyModal').classList.add('hidden');
+    document.getElementById('emergencyModal').classList.remove('flex');
+}
+
+function openBookingModal(professionalId, professionalName) {
+    document.getElementById('bookingProfessionalId').value = professionalId;
+    document.getElementById('bookingModalTitle').textContent = 'Book Session with ' + professionalName;
+    document.getElementById('bookingModal').classList.remove('hidden');
+    document.getElementById('bookingSuccess').classList.add('hidden');
+    document.getElementById('bookingError').classList.add('hidden');
+}
+
+function closeBookingModal() {
+    document.getElementById('bookingModal').classList.add('hidden');
+}
+
+function bookAppointment(professionalId) {
+    // Implement booking functionality
+}
+
+function viewProfile(professionalId) {
+    // Implement profile view functionality
+}
+
+function joinSession(sessionId) {
+    // Implement session join functionality
+}
+
+function rescheduleSession(sessionId) {
+    // Implement rescheduling functionality
+}
+
+function viewSessionDetails(sessionId) {
+    // Implement session details view functionality
+}
+
+function openChatModal(professionalId, professionalName) {
+    document.getElementById('chatProfessionalId').value = professionalId;
+    document.getElementById('chatModalTitle').textContent = 'Chat with ' + professionalName;
+    document.getElementById('chatModal').classList.remove('hidden');
+    document.getElementById('chatError').classList.add('hidden');
+    document.getElementById('chatInput').value = '';
+    loadMessages(professionalId);
+}
+
+function closeChatModal() {
+    document.getElementById('chatModal').classList.add('hidden');
+}
+
+async function loadMessages(professionalId) {
+    const res = await fetch(`/api/messages/${professionalId}`);
+    const messages = await res.json();
+    const chatMessages = document.getElementById('chatMessages');
+    chatMessages.innerHTML = '';
+    messages.forEach(msg => {
+        const div = document.createElement('div');
+        div.className = 'mb-2 flex ' + (msg.from_user ? 'justify-end' : 'justify-start');
+        div.innerHTML = `<span class="inline-block px-3 py-2 rounded-lg ${msg.from_user ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 dark:text-white'}">${msg.content}</span><span class="ml-2 text-xs text-gray-400">${msg.created_at}</span>`;
+        chatMessages.appendChild(div);
+    });
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+document.getElementById('bookingForm').onsubmit = async function(e) {
+    e.preventDefault();
+    const professional_id = document.getElementById('bookingProfessionalId').value;
+    const appointment_time = document.getElementById('appointment_time').value;
+    const type = document.getElementById('session_type').value;
+    const res = await fetch('/book-session', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({professional_id, appointment_time, type})
+    });
+    const data = await res.json();
+    if (data.success) {
+        document.getElementById('bookingSuccess').classList.remove('hidden');
+        document.getElementById('bookingError').classList.add('hidden');
+        setTimeout(() => { closeBookingModal(); location.reload(); }, 1200);
+    } else {
+        document.getElementById('bookingError').textContent = data.message || 'Booking failed.';
+        document.getElementById('bookingError').classList.remove('hidden');
+    }
+}
+
+document.getElementById('chatForm').onsubmit = async function(e) {
+    e.preventDefault();
+    const professional_id = document.getElementById('chatProfessionalId').value;
+    const content = document.getElementById('chatInput').value;
+    const res = await fetch('/api/messages/send', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({professional_id, content})
+    });
+    const data = await res.json();
+    if (data.success) {
+        document.getElementById('chatInput').value = '';
+        loadMessages(professional_id);
+        document.getElementById('chatError').classList.add('hidden');
+    } else {
+        document.getElementById('chatError').textContent = data.message || 'Message failed.';
+        document.getElementById('chatError').classList.remove('hidden');
+    }
+}
+
+function openLiveSessionModal(sessionId, professionalName, dateTime, type) {
+    document.getElementById('liveSessionTitle').textContent = 'Live Session with ' + professionalName;
+    document.getElementById('liveSessionInfo').textContent = `${dateTime} | ${type}`;
+    document.getElementById('liveSessionModal').classList.remove('hidden');
+}
+
+function closeLiveSessionModal() {
+    document.getElementById('liveSessionModal').classList.add('hidden');
+}
+
+function openSessionDetailsModal(sessionId, professionalName, date, summary) {
+    document.getElementById('sessionDetailsTitle').textContent = 'Session with ' + professionalName;
+    document.getElementById('sessionDetailsInfo').textContent = `${date}\n${summary}`;
+    document.getElementById('sessionDetailsModal').classList.remove('hidden');
+}
+
+function closeSessionDetailsModal() {
+    document.getElementById('sessionDetailsModal').classList.add('hidden');
+}
+</script>
+{% endblock %} 

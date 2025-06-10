@@ -9,6 +9,9 @@ import json
 import uuid
 import requests
 from urllib.parse import urlencode
+from sqlalchemy.orm import joinedload
+import click
+from flask.cli import with_appcontext
 
 # Import AI services
 from ai_service import AIService
@@ -237,6 +240,101 @@ class ChatMessage(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     edited_at = db.Column(db.DateTime)
 
+class SupportContact(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    role = db.Column(db.String(50), nullable=False)  # 'doctor' or 'therapist'
+    specialty = db.Column(db.String(100))
+    email = db.Column(db.String(120))
+    phone = db.Column(db.String(30))
+    availability = db.Column(db.String(100))
+
+class Appointment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    contact_id = db.Column(db.Integer, db.ForeignKey('support_contact.id'), nullable=False)
+    appointment_time = db.Column(db.DateTime, nullable=False)
+    reason = db.Column(db.String(255))
+    status = db.Column(db.String(50), default='pending')
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    contact = db.relationship('SupportContact', backref='appointments')
+
+class Professional(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    role = db.Column(db.String(50), nullable=False)  # 'doctor' or 'therapist'
+    specialization = db.Column(db.String(100))
+    bio = db.Column(db.Text)
+    email = db.Column(db.String(120))
+    phone = db.Column(db.String(30))
+    availability = db.Column(db.String(100))
+    rating = db.Column(db.Float, default=5.0)
+    language = db.Column(db.String(50))
+    gender = db.Column(db.String(20))
+    is_verified = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class Session(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    professional_id = db.Column(db.Integer, db.ForeignKey('professional.id'), nullable=False)
+    appointment_time = db.Column(db.DateTime, nullable=False)
+    duration = db.Column(db.Integer, default=60)  # in minutes
+    type = db.Column(db.String(20))  # 'video', 'audio', 'chat'
+    status = db.Column(db.String(20), default='scheduled')  # 'scheduled', 'completed', 'cancelled'
+    notes = db.Column(db.Text)
+    feedback = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class Message(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    professional_id = db.Column(db.Integer, db.ForeignKey('professional.id'), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    type = db.Column(db.String(20), default='text')  # 'text', 'voice', 'file'
+    file_url = db.Column(db.String(255))
+    is_read = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class TreatmentPlan(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    professional_id = db.Column(db.Integer, db.ForeignKey('professional.id'), nullable=False)
+    summary = db.Column(db.Text)
+    goals = db.Column(db.Text)  # JSON string of goals
+    notes = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+class Admin(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password_hash = db.Column(db.String(128), nullable=False)
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+
+# Utility to create default admins
+@app.cli.command('create_default_admins')
+def create_default_admins():
+    admins = [
+        {'name': 'Admin One', 'email': 'admin1@example.com'},
+        {'name': 'Admin Two', 'email': 'admin2@example.com'},
+        {'name': 'Admin Three', 'email': 'admin3@example.com'},
+        {'name': 'Admin Four', 'email': 'admin4@example.com'},
+    ]
+    default_password = 'Admin@1234'
+    for adm in admins:
+        if not Admin.query.filter_by(email=adm['email']).first():
+            admin = Admin(name=adm['name'], email=adm['email'])
+            admin.set_password(default_password)
+            db.session.add(admin)
+    db.session.commit()
+    print('Default admins created (or already exist).')
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -1023,26 +1121,30 @@ def progress():
         DailyGoal.date == today
     ).all()
     if not today_goals:
-        # Define your default goals here
-        default_goals = [
-            {'title': 'Drink 8 glasses of water', 'category': 'Wellness', 'scheduled_time': '08:00'},
-            {'title': 'Take a 10-minute walk', 'category': 'Exercise', 'scheduled_time': '12:00'},
-            {'title': 'Reflect for 5 minutes', 'category': 'Mindfulness', 'scheduled_time': '20:00'}
-        ]
-        for goal in default_goals:
-            new_goal = DailyGoal(
-                user_id=current_user.id,
-                title=goal['title'],
-                category=goal['category'],
-                scheduled_time=goal['scheduled_time'],
-                date=today
-            )
-            db.session.add(new_goal)
-        db.session.commit()
-        today_goals = DailyGoal.query.filter(
-            DailyGoal.user_id == current_user.id,
-            DailyGoal.date == today
-        ).all()
+        # Find the user's first day with goals
+        first_goal = DailyGoal.query.filter(
+            DailyGoal.user_id == current_user.id
+        ).order_by(DailyGoal.date.asc()).first()
+        if first_goal:
+            first_day = first_goal.date
+            first_day_goals = DailyGoal.query.filter(
+                DailyGoal.user_id == current_user.id,
+                DailyGoal.date == first_day
+            ).all()
+            for goal in first_day_goals:
+                new_goal = DailyGoal(
+                    user_id=current_user.id,
+                    title=goal.title,
+                    category=goal.category,
+                    scheduled_time=goal.scheduled_time,
+                    date=today
+                )
+                db.session.add(new_goal)
+            db.session.commit()
+            today_goals = DailyGoal.query.filter(
+                DailyGoal.user_id == current_user.id,
+                DailyGoal.date == today
+            ).all()
     week_ago = datetime.utcnow() - timedelta(days=7)
     mood_entries = MoodEntry.query.filter(
         MoodEntry.user_id == current_user.id,
@@ -1761,6 +1863,221 @@ def init_db():
         print(f"Error initializing database: {str(e)}") # Debug print
         db.session.rollback()
         raise
+
+@app.route('/support', methods=['GET'])
+@login_required
+def support():
+    contacts = SupportContact.query.all()
+    upcoming_appointments = Appointment.query.options(joinedload(Appointment.contact)).filter(
+        Appointment.user_id == current_user.id,
+        Appointment.appointment_time >= datetime.utcnow()
+    ).order_by(Appointment.appointment_time.asc()).all()
+    return render_template('support.html', contacts=contacts, upcoming_appointments=upcoming_appointments)
+
+@app.route('/book-appointment', methods=['POST'])
+@login_required
+def book_appointment():
+    contact_id = request.form.get('contact_id')
+    appointment_time = request.form.get('appointment_time')
+    reason = request.form.get('reason')
+    if not contact_id or not appointment_time:
+        flash('Please select a specialist and appointment time.', 'error')
+        return redirect(url_for('support'))
+    appointment = Appointment(
+        user_id=current_user.id,
+        contact_id=contact_id,
+        appointment_time=datetime.strptime(appointment_time, '%Y-%m-%dT%H:%M'),
+        reason=reason
+    )
+    db.session.add(appointment)
+    db.session.commit()
+    flash('Appointment booked successfully!', 'success')
+    return redirect(url_for('support'))
+
+@click.command('create-tables')
+@with_appcontext
+def create_tables():
+    from app import db
+    db.create_all()
+    print('All tables created.')
+
+app.cli.add_command(create_tables)
+
+@app.route('/virtual-assistance')
+@login_required
+def virtual_assistance():
+    # Get all verified professionals
+    professionals = Professional.query.filter_by(is_verified=True).all()
+    
+    # Get user's upcoming sessions
+    upcoming_sessions = Session.query.filter(
+        Session.user_id == current_user.id,
+        Session.appointment_time >= datetime.utcnow(),
+        Session.status == 'scheduled'
+    ).order_by(Session.appointment_time.asc()).all()
+    
+    # Get active chats
+    active_chats = db.session.query(
+        Professional,
+        Message
+    ).join(
+        Message,
+        Message.professional_id == Professional.id
+    ).filter(
+        Message.user_id == current_user.id
+    ).order_by(
+        Message.created_at.desc()
+    ).all()
+    
+    # Get treatment plan
+    treatment_plan = TreatmentPlan.query.filter_by(
+        user_id=current_user.id
+    ).order_by(TreatmentPlan.updated_at.desc()).first()
+    treatment_plan_updates = []
+    if treatment_plan and treatment_plan.notes:
+        try:
+            treatment_plan_updates = json.loads(treatment_plan.notes)
+        except Exception:
+            treatment_plan_updates = []
+    # Get past sessions
+    past_sessions = Session.query.filter(
+        Session.user_id == current_user.id,
+        Session.status == 'completed'
+    ).order_by(Session.appointment_time.desc()).limit(5).all()
+    
+    return render_template('virtual_assistance.html',
+                         professionals=professionals,
+                         upcoming_sessions=upcoming_sessions,
+                         active_chats=active_chats,
+                         treatment_plan=treatment_plan,
+                         treatment_plan_updates=treatment_plan_updates,
+                         past_sessions=past_sessions)
+
+@app.route('/book-session', methods=['POST'])
+@login_required
+def book_session():
+    data = request.get_json()
+    professional_id = data.get('professional_id')
+    appointment_time = data.get('appointment_time')
+    session_type = data.get('type', 'video')
+    
+    if not professional_id or not appointment_time:
+        return jsonify({'success': False, 'message': 'Missing required fields'})
+    
+    session = Session(
+        user_id=current_user.id,
+        professional_id=professional_id,
+        appointment_time=datetime.strptime(appointment_time, '%Y-%m-%dT%H:%M'),
+        type=session_type
+    )
+    
+    db.session.add(session)
+    db.session.commit()
+    
+    return jsonify({'success': True, 'message': 'Session booked successfully'})
+
+@app.route('/virtual-assistance/join-session/<int:session_id>')
+@login_required
+def join_virtual_session(session_id):
+    session = Session.query.get_or_404(session_id)
+    
+    if session.user_id != current_user.id:
+        return jsonify({'success': False, 'message': 'Unauthorized'})
+    
+    if session.status != 'scheduled':
+        return jsonify({'success': False, 'message': 'Session is not available'})
+    
+    # Here you would integrate with your video/audio call service
+    # For now, we'll just return a success message
+    return jsonify({'success': True, 'message': 'Joining session...'})
+
+def is_admin():
+    # Simple admin check; adjust as needed for your app
+    return hasattr(current_user, 'is_admin') and current_user.is_admin
+
+@app.route('/admin/add-professional', methods=['GET', 'POST'])
+@login_required
+def add_professional():
+    if not is_admin():
+        flash('You do not have permission to access this page.', 'danger')
+        return redirect(url_for('login'))
+
+    if request.method == 'POST':
+        name = request.form.get('name')
+        role = request.form.get('role')
+        specialization = request.form.get('specialization')
+        bio = request.form.get('bio')
+        email = request.form.get('email')
+        phone = request.form.get('phone')
+        availability = request.form.get('availability')
+        rating = float(request.form.get('rating', 5.0))
+        language = request.form.get('language')
+        gender = request.form.get('gender')
+        is_verified = bool(request.form.get('is_verified'))
+
+        professional = Professional(
+            name=name,
+            role=role,
+            specialization=specialization,
+            bio=bio,
+            email=email,
+            phone=phone,
+            availability=availability,
+            rating=rating,
+            language=language,
+            gender=gender,
+            is_verified=is_verified
+        )
+        db.session.add(professional)
+        db.session.commit()
+        flash('Professional added successfully!', 'success')
+        return redirect(url_for('add_professional'))
+
+    return render_template('admin_add_professional.html')
+
+@app.route('/api/messages/<int:professional_id>')
+@login_required
+def get_messages(professional_id):
+    messages = Message.query.filter_by(user_id=current_user.id, professional_id=professional_id).order_by(Message.created_at.asc()).all()
+    return jsonify([
+        {
+            'id': m.id,
+            'content': m.content,
+            'type': m.type,
+            'file_url': m.file_url,
+            'is_read': m.is_read,
+            'created_at': m.created_at.strftime('%Y-%m-%d %H:%M'),
+            'from_user': m.user_id == current_user.id
+        } for m in messages
+    ])
+
+@app.route('/api/messages/send', methods=['POST'])
+@login_required
+def send_message():
+    data = request.get_json()
+    professional_id = data.get('professional_id')
+    content = data.get('content')
+    if not professional_id or not content:
+        return jsonify({'success': False, 'message': 'Missing required fields'})
+    message = Message(
+        user_id=current_user.id,
+        professional_id=professional_id,
+        content=content,
+        type='text',
+        is_read=False
+    )
+    db.session.add(message)
+    db.session.commit()
+    return jsonify({'success': True, 'message': 'Message sent'})
+
+@app.route('/admin/professionals')
+@login_required
+def admin_professionals():
+    if not is_admin():
+        flash('You do not have permission to access this page.', 'danger')
+        return redirect(url_for('login'))
+    # Instead of showing the list, redirect to add professional page
+    return redirect(url_for('add_professional'))
 
 if __name__ == '__main__':
     print("Running app directly, initializing database...") # Debug print

@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Admin: Professionals Management</h2>
+    <div class="mb-4">
+        <a href="{{ url_for('add_professional') }}" class="btn btn-primary">Add New Professional</a>
+        <a href="/virtual-assistance" class="btn btn-secondary ml-2">Test Virtual Assistance Features</a>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <h4 class="card-title mb-3">All Professionals</h4>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Role</th>
+                        <th>Specialization</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Verified</th>
+                        <th>Created</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in professionals %}
+                    <tr>
+                        <td>{{ p.name }}</td>
+                        <td>{{ p.role }}</td>
+                        <td>{{ p.specialization }}</td>
+                        <td>{{ p.email }}</td>
+                        <td>{{ p.phone }}</td>
+                        <td>{% if p.is_verified %}<span class="badge bg-success">Yes</span>{% else %}<span class="badge bg-secondary">No</span>{% endif %}</td>
+                        <td>{{ p.created_at.strftime('%Y-%m-%d') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="mt-5">
+        <h4>Test Virtual Assistance Features</h4>
+        <p>Click below to preview and test the user-facing Virtual Assistance page as an admin:</p>
+        <a href="/virtual-assistance" class="btn btn-info">Go to Virtual Assistance</a>
+    </div>
+</div>
+{% endblock %} 
