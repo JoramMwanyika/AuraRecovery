@@ -4,7 +4,7 @@
         <div class="flex items-center space-x-4">
             <a href="{{ url_for('progress') }}" class="flex items-center space-x-2 text-gray-600 dark:text-gray-300 hover:text-aura-blue transition-colors">
                 <i data-lucide="arrow-left" class="w-5 h-5"></i>
-                <span>Back to Dashboard</span>
+                <span class="hidden sm:inline">Back to Dashboard</span>
             </a>
             <div class="flex items-center space-x-2">
                 <div class="w-8 h-8 bg-aura-blue rounded-lg flex items-center justify-center shadow-lg">
@@ -15,7 +15,12 @@
         </div>
 
         <!-- Hamburger Icon (Mobile) -->
-        <button id="navbarHamburger" class="lg:hidden w-10 h-10 flex items-center justify-center ml-2" onclick="toggleMobileNav()">
+        <button id="navbarHamburger" 
+                class="lg:hidden w-10 h-10 flex items-center justify-center ml-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-aura-blue" 
+                onclick="toggleMobileNav()"
+                aria-label="Toggle navigation menu"
+                aria-expanded="false"
+                aria-controls="mobileNav">
             <i data-lucide="menu" class="w-6 h-6"></i>
         </button>
 
@@ -41,7 +46,7 @@
                 <i data-lucide="user-check" class="w-4 h-4 mr-2 inline"></i>
                 Virtual Assistance
             </a>
-            <button onclick="toggleDarkMode()" class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-300 flex items-center justify-center">
+            <button onclick="toggleDarkMode()" class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-300 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-aura-blue">
                 <i data-lucide="sun" class="w-5 h-5 text-yellow-500 hidden dark:block"></i>
                 <i data-lucide="moon" class="w-5 h-5 text-gray-600 block dark:hidden"></i>
             </button>
@@ -54,35 +59,78 @@
         </div>
     </div>
     <!-- Mobile Nav Links -->
-    <div id="mobileNav" class="lg:hidden hidden bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 px-4 py-4">
-        <a href="{{ url_for('resources') }}" class="block py-2 px-2 rounded-lg text-aura-charcoal dark:text-white hover:bg-aura-green/20 font-medium">
-            <i data-lucide="book-open" class="w-4 h-4 mr-2 inline"></i> Resources
-        </a>
-        <a href="{{ url_for('support_groups') }}" class="block py-2 px-2 rounded-lg text-purple-700 dark:text-purple-300 hover:bg-purple-100/20 font-medium">
-            <i data-lucide="users" class="w-4 h-4 mr-2 inline"></i> Support Groups
-        </a>
-        <a href="{{ url_for('ai_dashboard') }}" class="block py-2 px-2 rounded-lg text-blue-700 dark:text-blue-300 hover:bg-blue-100/20 font-medium">
-            <i data-lucide="brain" class="w-4 h-4 mr-2 inline"></i> AI Dashboard
-        </a>
-        <a href="{{ url_for('ai_therapist') }}" class="block py-2 px-2 rounded-lg text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100/20 font-medium">
-            <i data-lucide="message-circle" class="w-4 h-4 mr-2 inline"></i> AI Therapist
-        </a>
-        <a href="{{ url_for('virtual_assistance') }}" class="block py-2 px-2 rounded-lg text-pink-700 dark:text-pink-300 hover:bg-pink-100/20 font-medium">
-            <i data-lucide="user-check" class="w-4 h-4 mr-2 inline"></i> Virtual Assistance
-        </a>
-        <a href="{{ url_for('profile_page') }}" class="block py-2 px-2 rounded-lg text-aura-charcoal dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 font-medium">
-            <i data-lucide="user" class="w-4 h-4 mr-2 inline"></i> Profile
-        </a>
-        <button onclick="toggleDarkMode()" class="w-full flex items-center justify-start py-2 px-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 font-medium">
-            <i data-lucide="sun" class="w-4 h-4 text-yellow-500 hidden dark:block mr-2"></i>
-            <i data-lucide="moon" class="w-4 h-4 text-gray-600 block dark:hidden mr-2"></i>
-            Toggle Dark Mode
-        </button>
+    <div id="mobileNav" 
+         class="lg:hidden hidden fixed inset-x-0 top-[73px] bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 px-4 py-4 transform transition-transform duration-300 ease-in-out"
+         role="navigation"
+         aria-label="Mobile navigation">
+        <div class="container mx-auto space-y-2">
+            <a href="{{ url_for('resources') }}" class="flex items-center py-3 px-4 rounded-lg text-aura-charcoal dark:text-white hover:bg-aura-green/20 font-medium transition-colors">
+                <i data-lucide="book-open" class="w-5 h-5 mr-3"></i> Resources
+            </a>
+            <a href="{{ url_for('support_groups') }}" class="flex items-center py-3 px-4 rounded-lg text-purple-700 dark:text-purple-300 hover:bg-purple-100/20 font-medium transition-colors">
+                <i data-lucide="users" class="w-5 h-5 mr-3"></i> Support Groups
+            </a>
+            <a href="{{ url_for('ai_dashboard') }}" class="flex items-center py-3 px-4 rounded-lg text-blue-700 dark:text-blue-300 hover:bg-blue-100/20 font-medium transition-colors">
+                <i data-lucide="brain" class="w-5 h-5 mr-3"></i> AI Dashboard
+            </a>
+            <a href="{{ url_for('ai_therapist') }}" class="flex items-center py-3 px-4 rounded-lg text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100/20 font-medium transition-colors">
+                <i data-lucide="message-circle" class="w-5 h-5 mr-3"></i> AI Therapist
+            </a>
+            <a href="{{ url_for('virtual_assistance') }}" class="flex items-center py-3 px-4 rounded-lg text-pink-700 dark:text-pink-300 hover:bg-pink-100/20 font-medium transition-colors">
+                <i data-lucide="user-check" class="w-5 h-5 mr-3"></i> Virtual Assistance
+            </a>
+            <a href="{{ url_for('profile_page') }}" class="flex items-center py-3 px-4 rounded-lg text-aura-charcoal dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 font-medium transition-colors">
+                <i data-lucide="user" class="w-5 h-5 mr-3"></i> Profile
+            </a>
+            <button onclick="toggleDarkMode()" class="w-full flex items-center py-3 px-4 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 font-medium transition-colors">
+                <i data-lucide="sun" class="w-5 h-5 text-yellow-500 hidden dark:block mr-3"></i>
+                <i data-lucide="moon" class="w-5 h-5 text-gray-600 block dark:hidden mr-3"></i>
+                Toggle Dark Mode
+            </button>
+        </div>
     </div>
 </header>
+
 <script>
 function toggleMobileNav() {
     const nav = document.getElementById('mobileNav');
+    const button = document.getElementById('navbarHamburger');
+    const isExpanded = button.getAttribute('aria-expanded') === 'true';
+    
+    // Toggle the menu
     nav.classList.toggle('hidden');
+    
+    // Update ARIA attributes
+    button.setAttribute('aria-expanded', !isExpanded);
+    
+    // Toggle the icon
+    const icon = button.querySelector('i');
+    if (isExpanded) {
+        icon.setAttribute('data-lucide', 'menu');
+    } else {
+        icon.setAttribute('data-lucide', 'x');
+    }
+    lucide.createIcons();
+    
+    // Prevent body scroll when menu is open
+    document.body.style.overflow = isExpanded ? '' : 'hidden';
 }
+
+// Close mobile menu when clicking outside
+document.addEventListener('click', function(event) {
+    const nav = document.getElementById('mobileNav');
+    const button = document.getElementById('navbarHamburger');
+    
+    if (!nav.contains(event.target) && !button.contains(event.target) && !nav.classList.contains('hidden')) {
+        toggleMobileNav();
+    }
+});
+
+// Close mobile menu on window resize
+window.addEventListener('resize', function() {
+    const nav = document.getElementById('mobileNav');
+    if (window.innerWidth >= 1024 && !nav.classList.contains('hidden')) {
+        toggleMobileNav();
+    }
+});
 </script> 

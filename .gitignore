@@ -65,6 +65,33 @@ ENV/
 
 # Environment variables
 .env
+.env.local
+.env.*.local
 
 # Logs
 *.log
+logs/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Flask
+instance/
+.webassets-cache
+
+# Coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
