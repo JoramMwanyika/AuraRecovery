@@ -86,6 +86,7 @@ def load_sample_data():
         test_user = User.query.filter_by(email='test@example.com').first()
         if not test_user:
             test_user = User(
+                id=generate_object_id(),
                 first_name='Test',
                 last_name='User',
                 email='test@example.com',

@@ -2085,6 +2085,33 @@ def admin_professionals():
     # Instead of showing the list, redirect to add professional page
     return redirect(url_for('add_professional'))
 
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        first_name = request.form.get('first_name')
+        last_name = request.form.get('last_name')
+        email = request.form.get('email')
+        password = request.form.get('password')
+        
+        if User.query.filter_by(email=email).first():
+            flash('Email already registered')
+            return redirect(url_for('register'))
+        
+        user = User(
+            first_name=first_name,
+            last_name=last_name,
+            email=email
+        )
+        user.set_password(password)
+        
+        db.session.add(user)
+        db.session.commit()
+        
+        flash('Registration successful! Please log in.')
+        return redirect(url_for('login'))
+    
+    return render_template('register.html')
+
 if __name__ == '__main__':
     print("Running app directly, initializing database...") # Debug print
     with app.app_context():
