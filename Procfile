@@ -1,1 +1,1 @@
-web: python init_db.py && gunicorn wsgi:app 
+web: flask db upgrade && gunicorn wsgi:app 

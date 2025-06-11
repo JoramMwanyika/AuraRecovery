@@ -1,9 +1,20 @@
 import os
 from datetime import timedelta
+import re
 
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key-change-in-production'
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///aura_recovery.db'
+    
+    # Database configuration
+    if os.environ.get('DATABASE_URL'):
+        # Handle Render's PostgreSQL URL format
+        uri = os.environ.get('DATABASE_URL')
+        if uri.startswith("postgres://"):
+            uri = uri.replace("postgres://", "postgresql://", 1)
+        SQLALCHEMY_DATABASE_URI = uri
+    else:
+        SQLALCHEMY_DATABASE_URI = 'sqlite:///aura_recovery.db'
+    
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     PERMANENT_SESSION_LIFETIME = timedelta(days=7)
     
@@ -21,6 +32,11 @@ class DevelopmentConfig(Config):
 
 class ProductionConfig(Config):
     DEBUG = False
+    # Additional production settings
+    SESSION_COOKIE_SECURE = True
+    REMEMBER_COOKIE_SECURE = True
+    SESSION_COOKIE_HTTPONLY = True
+    REMEMBER_COOKIE_HTTPONLY = True
 
 config = {
     'development': DevelopmentConfig,

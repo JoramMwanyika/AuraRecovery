@@ -1,4 +1,8 @@
-from app import app
+from app import app, db
+from flask_migrate import Migrate
 
-if __name__ == "__main__":
+# Initialize Flask-Migrate
+migrate = Migrate(app, db)
+
+if __name__ == '__main__':
     app.run() 
