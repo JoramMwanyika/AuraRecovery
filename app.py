@@ -12,9 +12,15 @@ from urllib.parse import urlencode
 from sqlalchemy.orm import joinedload
 import click
 from flask.cli import with_appcontext
+import secrets
 
 # Import AI services
 from ai_service import AIService
+
+def generate_object_id():
+    """Generate a MongoDB-style 24-character ObjectId"""
+    import secrets
+    return secrets.token_hex(12)
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-here')
@@ -36,7 +42,7 @@ app.config['GOOGLE_MEET_API_KEY'] = os.environ.get('GOOGLE_MEET_API_KEY', 'your-
 
 # Database Models
 class User(UserMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     first_name = db.Column(db.String(100), nullable=False)
     last_name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
