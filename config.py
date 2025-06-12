@@ -6,6 +6,7 @@ load_dotenv()
 
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key'
+    INIT_KEY = os.environ.get('INIT_KEY') or 'dev-init-key'
     
     # Database configuration
     if os.environ.get('DATABASE_URL'):

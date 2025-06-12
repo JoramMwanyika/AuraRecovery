@@ -2112,6 +2112,86 @@ def register():
     
     return render_template('register.html')
 
+@app.route('/init-db/<init_key>', methods=['GET'])
+def initialize_database(init_key):
+    # Check if the initialization key matches the environment variable
+    if init_key != os.environ.get('INIT_KEY'):
+        return jsonify({'error': 'Invalid initialization key'}), 403
+    
+    try:
+        # Create all tables
+        db.create_all()
+        
+        # Check if we need to load initial data
+        if not User.query.first():
+            # Create a test user
+            test_user = User(
+                first_name="Test",
+                last_name="User",
+                email="test@example.com",
+                password_hash=generate_password_hash("password123"),
+                date_of_birth=datetime.now().date() - timedelta(days=365*25),
+                country="kenya",
+                language="english",
+                user_type="individual",
+                recovery_goals='["Learn coping strategies", "Track progress"]',
+                created_at=datetime.utcnow(),
+                sobriety_start_date=datetime.utcnow().date()
+            )
+            db.session.add(test_user)
+            
+            # Create some default goals
+            goals = [
+                DailyGoal(
+                    user=test_user,
+                    title="Morning Meditation",
+                    category="Wellness",
+                    description="Start each day with 10 minutes of meditation",
+                    status="pending"
+                ),
+                DailyGoal(
+                    user=test_user,
+                    title="Exercise",
+                    category="Physical Health",
+                    description="30 minutes of physical activity",
+                    status="pending"
+                )
+            ]
+            db.session.add_all(goals)
+            
+            # Create some milestones
+            milestones = [
+                Milestone(
+                    user=test_user,
+                    title="First Week Complete",
+                    description="Successfully completed first week of recovery",
+                    target_date=datetime.utcnow().date() + timedelta(days=7),
+                    status="pending"
+                ),
+                Milestone(
+                    user=test_user,
+                    title="One Month Milestone",
+                    description="Reach one month of sobriety",
+                    target_date=datetime.utcnow().date() + timedelta(days=30),
+                    status="pending"
+                )
+            ]
+            db.session.add_all(milestones)
+            
+            # Commit all changes
+            db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Database initialized successfully'
+        })
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
 if __name__ == '__main__':
     print("Running app directly, initializing database...") # Debug print
     with app.app_context():
