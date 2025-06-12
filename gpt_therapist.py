@@ -1,21 +1,29 @@
 import os
-import openai
+import requests
+from config import Config
 
 class GPTTherapist:
     def __init__(self):
-        self.api_key = os.getenv('OPENAI_API_KEY')
+        self.api_key = Config.OPENAI_ROUTER_API_KEY
         if not self.api_key:
-            raise ValueError("OpenAI API key not found. Please set the OPENAI_API_KEY environment variable.")
-        self.client = openai.OpenAI(api_key=self.api_key)
+            raise ValueError("OpenAI Router API key not found. Please set the OPENAI_ROUTER_API_KEY environment variable.")
+        self.headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json"
+        }
+        self.api_url = "https://openrouter.ai/api/v1/chat/completions"
 
     def get_response(self, messages):
         try:
-            response = self.client.chat.completions.create(
-                model="gpt-3.5-turbo",
-                messages=messages,
-                temperature=0.7,
-                max_tokens=150
-            )
-            return response.choices[0].message.content
+            data = {
+                "model": "mistralai/mistral-7b-instruct",
+                "messages": messages
+            }
+            
+            response = requests.post(self.api_url, json=data, headers=self.headers)
+            response.raise_for_status()  # Raise an exception for bad status codes
+            
+            result = response.json()
+            return result['choices'][0]['message']['content']
         except Exception as e:
             return f"I apologize, but I'm having trouble connecting right now. Please try again later. Error: {str(e)}" 
