@@ -171,6 +171,38 @@
             </div>
         </div>
 
+        <!-- Risk Analysis Section -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-xl font-bold text-aura-charcoal dark:text-white mb-4 flex items-center">
+                <i data-lucide="alert-triangle" class="w-5 h-5 mr-2 text-yellow-500" aria-hidden="true"></i>
+                Risk Analysis
+            </h2>
+            <div id="riskAnalysis" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Risk Level -->
+                <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Current Risk Level</h3>
+                    <div id="riskLevel" class="text-center">
+                        <div class="text-2xl font-bold text-gray-800 dark:text-white mb-2">Loading...</div>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">Analyzing your recent activity and mood patterns</p>
+                    </div>
+                </div>
+                <!-- Risk Factors -->
+                <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Risk Factors</h3>
+                    <div id="riskFactors" class="space-y-2">
+                        <p class="text-sm text-gray-600 dark:text-gray-400">Loading risk factors...</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Recommendations -->
+            <div class="mt-4">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Recommendations</h3>
+                <div id="riskRecommendations" class="space-y-2">
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Loading recommendations...</p>
+                </div>
+            </div>
+        </div>
+
         <!-- Mood History Section -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8 mt-8">
             <h2 class="text-xl font-bold text-aura-charcoal dark:text-white mb-4 flex items-center">
@@ -370,6 +402,9 @@
                 }
             });
         }
+
+        // Load risk analysis when page loads
+        loadRiskAnalysis();
     });
 
     function parseTimeString(timeStr) {
@@ -422,5 +457,90 @@
 
     setInterval(checkGoalTimes, 30000); // Check every 30 seconds
     window.onload = checkGoalTimes;
+
+    async function loadRiskAnalysis() {
+        try {
+            const response = await fetch('/api/ai/risk-analysis');
+            const data = await response.json();
+            
+            if (data.success) {
+                updateRiskAnalysis(data.analysis);
+            } else {
+                console.error('Failed to load risk analysis:', data.error);
+            }
+        } catch (error) {
+            console.error('Error loading risk analysis:', error);
+        }
+    }
+
+    function updateRiskAnalysis(analysis) {
+        // Update risk level
+        const riskLevel = document.getElementById('riskLevel');
+        const riskColor = {
+            'high': 'text-red-600 dark:text-red-400',
+            'moderate': 'text-yellow-600 dark:text-yellow-400',
+            'low': 'text-green-600 dark:text-green-400'
+        }[analysis.risk_level] || 'text-gray-600 dark:text-gray-400';
+        
+        riskLevel.innerHTML = `
+            <div class="text-2xl font-bold ${riskColor} mb-2">
+                ${analysis.risk_level.toUpperCase()}
+            </div>
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+                ${analysis.analysis}
+            </p>
+        `;
+        
+        // Update risk factors
+        const riskFactors = document.getElementById('riskFactors');
+        riskFactors.innerHTML = Object.entries(analysis.risk_factors)
+            .map(([factor, value]) => `
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-700 dark:text-gray-300">${factor.replace('_', ' ').toUpperCase()}</span>
+                    <span class="text-sm font-medium ${getRiskColor(value)}">${formatRiskValue(value)}</span>
+                </div>
+            `).join('');
+        
+        // Update recommendations
+        const recommendations = document.getElementById('riskRecommendations');
+        recommendations.innerHTML = analysis.recommendations
+            .map(rec => `
+                <div class="flex items-start space-x-3">
+                    <div class="w-6 h-6 ${getPriorityColor(rec.priority)} rounded-full flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="check" class="w-4 h-4 text-white"></i>
+                    </div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">${rec.message}</p>
+                </div>
+            `).join('');
+    }
+
+    function getRiskColor(value) {
+        if (typeof value === 'object' && value.risk_level) {
+            return {
+                'high': 'text-red-600 dark:text-red-400',
+                'moderate': 'text-yellow-600 dark:text-yellow-400',
+                'low': 'text-green-600 dark:text-green-400'
+            }[value.risk_level] || 'text-gray-600 dark:text-gray-400';
+        }
+        return value < 0.3 ? 'text-green-600 dark:text-green-400' :
+               value < 0.7 ? 'text-yellow-600 dark:text-yellow-400' :
+               'text-red-600 dark:text-red-400';
+    }
+
+    function getPriorityColor(priority) {
+        return {
+            'high': 'bg-red-500',
+            'medium': 'bg-yellow-500',
+            'low': 'bg-green-500',
+            'positive': 'bg-green-500'
+        }[priority] || 'bg-gray-500';
+    }
+
+    function formatRiskValue(value) {
+        if (typeof value === 'object') {
+            return value.risk_level.toUpperCase();
+        }
+        return `${(value * 100).toFixed(0)}%`;
+    }
 </script>
 {% endblock %}

@@ -210,19 +210,181 @@ class AIService:
     def analyze_relapse_risk(user):
         """Analyze user's relapse risk using AI"""
         user_data = AIService.get_user_ai_data(user)
-        risk_analysis = relapse_predictor.predict_relapse_risk(user_data)
         
-        # Add contextual information
-        risk_analysis['user_context'] = {
+        # Get mood data
+        from app import MoodEntry
+        week_ago = datetime.utcnow() - timedelta(days=7)
+        recent_moods = MoodEntry.query.filter(
+            MoodEntry.user_id == user.id,
+            MoodEntry.created_at >= week_ago
+        ).order_by(MoodEntry.created_at.desc()).all()
+        
+        # Calculate risk factors
+        risk_factors = {
+            'mood_trend': AIService._analyze_mood_risk(recent_moods),
+            'goal_completion': user_data.get('goal_completion_rate', 0.5),
+            'social_engagement': user_data.get('social_engagement_rate', 0.5),
             'days_sober': user_data.get('days_sober', 0),
-            'recent_activity': {
-                'goals_completed': user_data.get('completed_goals', 0),
-                'social_engagement': user_data.get('group_messages_count', 0),
-                'journal_entries': user_data.get('journal_entries_week', 0)
+            'recent_triggers': user_data.get('recent_triggers', [])
+        }
+        
+        # Calculate overall risk score
+        risk_score = AIService._calculate_risk_score(risk_factors)
+        
+        # Generate risk analysis
+        risk_analysis = {
+            'risk_level': AIService._get_risk_level(risk_score),
+            'risk_score': risk_score,
+            'risk_factors': risk_factors,
+            'analysis': AIService._generate_risk_analysis(risk_factors),
+            'recommendations': AIService._get_risk_recommendations(risk_factors),
+            'user_context': {
+                'days_sober': user_data.get('days_sober', 0),
+                'recent_activity': {
+                    'goals_completed': user_data.get('completed_goals', 0),
+                    'social_engagement': user_data.get('group_messages_count', 0),
+                    'journal_entries': user_data.get('journal_entries_week', 0)
+                }
             }
         }
         
         return risk_analysis
+    
+    @staticmethod
+    def _analyze_mood_risk(mood_entries):
+        """Analyze mood data for risk factors"""
+        if not mood_entries:
+            return {'risk_level': 'unknown', 'trend': 'stable'}
+        
+        mood_mapping = {'very_sad': 1, 'sad': 2, 'neutral': 3, 'happy': 4, 'very_happy': 5}
+        mood_values = [mood_mapping.get(entry.mood, 3) for entry in mood_entries]
+        
+        # Calculate trend
+        if len(mood_values) >= 3:
+            trend = np.polyfit(range(len(mood_values)), mood_values, 1)[0]
+            trend_direction = 'declining' if trend < -0.2 else 'improving' if trend > 0.2 else 'stable'
+        else:
+            trend_direction = 'stable'
+        
+        # Calculate risk level based on recent moods
+        recent_mood_avg = np.mean(mood_values[:3]) if mood_values else 3
+        if recent_mood_avg <= 2:
+            risk_level = 'high'
+        elif recent_mood_avg <= 3:
+            risk_level = 'moderate'
+        else:
+            risk_level = 'low'
+        
+        return {
+            'risk_level': risk_level,
+            'trend': trend_direction,
+            'recent_mood_avg': float(recent_mood_avg)
+        }
+    
+    @staticmethod
+    def _calculate_risk_score(risk_factors):
+        """Calculate overall risk score from factors"""
+        weights = {
+            'mood_trend': 0.4,
+            'goal_completion': 0.2,
+            'social_engagement': 0.2,
+            'days_sober': 0.1,
+            'recent_triggers': 0.1
+        }
+        
+        # Convert mood risk to score
+        mood_risk_map = {'high': 0.8, 'moderate': 0.5, 'low': 0.2, 'unknown': 0.5}
+        mood_score = mood_risk_map.get(risk_factors['mood_trend']['risk_level'], 0.5)
+        
+        # Calculate weighted score
+        score = (
+            weights['mood_trend'] * mood_score +
+            weights['goal_completion'] * (1 - risk_factors['goal_completion']) +
+            weights['social_engagement'] * (1 - risk_factors['social_engagement']) +
+            weights['days_sober'] * (1 / (1 + risk_factors['days_sober']/30)) +
+            weights['recent_triggers'] * (len(risk_factors['recent_triggers']) * 0.2)
+        )
+        
+        return min(max(score, 0), 1)
+    
+    @staticmethod
+    def _get_risk_level(risk_score):
+        """Convert risk score to risk level"""
+        if risk_score >= 0.7:
+            return 'high'
+        elif risk_score >= 0.4:
+            return 'moderate'
+        else:
+            return 'low'
+    
+    @staticmethod
+    def _generate_risk_analysis(risk_factors):
+        """Generate human-readable risk analysis"""
+        analysis = []
+        
+        # Mood analysis
+        mood_risk = risk_factors['mood_trend']
+        if mood_risk['risk_level'] == 'high':
+            analysis.append("Your recent mood patterns indicate increased risk. Consider reaching out to your support network.")
+        elif mood_risk['trend'] == 'declining':
+            analysis.append("Your mood has been declining recently. This could indicate increased vulnerability.")
+        
+        # Goal completion analysis
+        if risk_factors['goal_completion'] < 0.5:
+            analysis.append("Your goal completion rate is below average. Struggling with daily goals can increase risk.")
+        
+        # Social engagement analysis
+        if risk_factors['social_engagement'] < 0.3:
+            analysis.append("Your social engagement is low. Isolation can increase relapse risk.")
+        
+        # Days sober context
+        if risk_factors['days_sober'] < 30:
+            analysis.append("Early recovery is a vulnerable period. Stay connected with your support system.")
+        
+        # Recent triggers
+        if risk_factors['recent_triggers']:
+            analysis.append(f"Recent exposure to {len(risk_factors['recent_triggers'])} triggers detected. Stay vigilant.")
+        
+        return " ".join(analysis) if analysis else "Your current risk factors are well-managed. Keep up the good work!"
+    
+    @staticmethod
+    def _get_risk_recommendations(risk_factors):
+        """Generate personalized risk management recommendations"""
+        recommendations = []
+        
+        # Mood-based recommendations
+        mood_risk = risk_factors['mood_trend']
+        if mood_risk['risk_level'] == 'high':
+            recommendations.append({
+                'type': 'mood',
+                'message': 'Schedule extra support sessions or group meetings',
+                'priority': 'high'
+            })
+        
+        # Goal-based recommendations
+        if risk_factors['goal_completion'] < 0.5:
+            recommendations.append({
+                'type': 'goals',
+                'message': 'Break down your goals into smaller, more manageable tasks',
+                'priority': 'medium'
+            })
+        
+        # Social engagement recommendations
+        if risk_factors['social_engagement'] < 0.3:
+            recommendations.append({
+                'type': 'social',
+                'message': 'Increase participation in support groups or recovery activities',
+                'priority': 'high'
+            })
+        
+        # General recommendations
+        recommendations.append({
+            'type': 'general',
+            'message': 'Practice self-care and stress management techniques daily',
+            'priority': 'medium'
+        })
+        
+        return recommendations
     
     @staticmethod
     def get_ai_chat_response(message, user):

@@ -36,7 +36,7 @@ class Config:
     ZOOM_API_SECRET = os.environ.get('ZOOM_API_SECRET')
     
     # Google Meet settings
-    GOOGLE_MEET_API_KEY = os.environ.get('GOOGLE_MEET_API_KEY')
+    GOOGLE_MEET_API_KEY = 'AIzaSyDWVJ7jqy1uTXMDGYy1Y_f0cLm0AWxoS-Q'
     
     # Security settings
     SESSION_COOKIE_SECURE = os.environ.get('FLASK_ENV') == 'production'

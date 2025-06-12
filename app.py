@@ -589,7 +589,22 @@ def get_ai_recommendations():
         app.logger.error(f"AI recommendations error: {str(e)}")
         return jsonify({'success': False, 'message': 'Unable to generate recommendations'})
 
-
+@app.route('/api/ai/risk-analysis')
+@login_required
+def get_risk_analysis():
+    """Get AI risk analysis"""
+    try:
+        risk_analysis = AIService.analyze_relapse_risk(current_user)
+        return jsonify({
+            'success': True,
+            'analysis': risk_analysis
+        })
+    except Exception as e:
+        app.logger.error(f"Risk analysis error: {str(e)}")
+        return jsonify({
+            'success': False,
+            'message': 'Unable to analyze risk factors'
+        }), 500
 
 def create_default_goals(user):
     default_goals = [
