@@ -46,34 +46,48 @@ python init_db.py
 flask run
 ```
 
-## Railway Deployment
+## Render Deployment
 
-1. Create a Railway account and install the Railway CLI
+1. Create a Render account at [render.com](https://render.com)
 
-2. Login to Railway:
-```bash
-railway login
-```
+2. Create a new Web Service:
+   - Connect your GitHub repository
+   - Select the repository
+   - Configure as follows:
+     - Name: `aurarecovery`
+     - Environment: `Python`
+     - Build Command: `pip install -r requirements.txt`
+     - Start Command: `gunicorn app:app`
+     - Plan: Free
 
-3. Link your project:
-```bash
-railway link
-```
+3. Add Environment Variables in Render dashboard:
+   - `SECRET_KEY`: Flask secret key
+   - `MAIL_SERVER`: SMTP server
+   - `MAIL_PORT`: SMTP port
+   - `MAIL_USERNAME`: Email username
+   - `MAIL_PASSWORD`: Email password
+   - `OPENAI_API_KEY`: OpenAI API key
+   - `ZOOM_API_KEY`: Zoom API key
+   - `ZOOM_API_SECRET`: Zoom API secret
+   - `GOOGLE_MEET_API_KEY`: Google Meet API key
 
-4. Add environment variables in Railway dashboard:
-- Copy all variables from your `.env` file
-- Add `PORT=8000` for Railway
+4. Create a PostgreSQL Database:
+   - Click "New +" and select "PostgreSQL"
+   - Name: `aurarecovery-db`
+   - Database: `aurarecovery`
+   - User: `aurarecovery`
+   - Plan: Free
+   - Region: Choose closest to your users
 
-5. Deploy to Railway:
-```bash
-railway up
-```
+5. Initialize the Database:
+   - After deployment, open the shell in Render dashboard
+   - Run: `python init_render_db.py`
 
 ## Environment Variables
 
 Required environment variables:
 - `SECRET_KEY`: Flask secret key
-- `DATABASE_URL`: PostgreSQL database URL (automatically set by Railway)
+- `DATABASE_URL`: PostgreSQL database URL (automatically set by Render)
 - `MAIL_SERVER`: SMTP server for emails
 - `MAIL_PORT`: SMTP port
 - `MAIL_USERNAME`: Email username

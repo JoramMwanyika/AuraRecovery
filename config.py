@@ -6,12 +6,18 @@ load_dotenv()
 
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key'
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'sqlite:///aurarecovery.db')
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
     
-    # If using PostgreSQL on Railway, convert the URL to the correct format
-    if SQLALCHEMY_DATABASE_URI.startswith("postgres://"):
-        SQLALCHEMY_DATABASE_URI = SQLALCHEMY_DATABASE_URI.replace("postgres://", "postgresql://", 1)
+    # Database configuration
+    if os.environ.get('DATABASE_URL'):
+        # Handle Render's PostgreSQL URL
+        if os.environ.get('DATABASE_URL').startswith("postgres://"):
+            SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL').replace("postgres://", "postgresql://", 1)
+        else:
+            SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
+    else:
+        SQLALCHEMY_DATABASE_URI = 'sqlite:///aurarecovery.db'
+    
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # Mail settings
     MAIL_SERVER = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
