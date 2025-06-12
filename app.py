@@ -23,9 +23,7 @@ def generate_object_id():
     return secrets.token_hex(12)
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-here')
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///aura_recovery.db')
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config.from_object(Config)
 
 # Initialize SQLAlchemy with the app
 db = SQLAlchemy(app)
@@ -1842,33 +1840,71 @@ def from_json_filter(value):
 
 # Initialize database
 def init_db():
-    print("Attempting to initialize database...") # Debug print
-    try:
-        # Drop all tables first to ensure clean state
-        print("Dropping all tables...") # Debug print
-        db.drop_all()
-        print("Tables dropped.") # Debug print
-
-        # Create all tables
-        print("Creating all tables...") # Debug print
-        db.create_all()
-        print("Database tables created successfully!")
-
-        # Initialize with sample data
-        print("Attempting to initialize sample data...") # Debug print
+    with app.app_context():
         try:
-            create_educational_resources()
-            create_sample_support_groups()
-            db.session.commit()
-            print("Sample data initialized successfully!")
+            db.create_all()
+            # Check if we need to load initial data
+            if not User.query.first():
+                print("Loading initial data...")
+                # Create a test user
+                test_user = User(
+                    first_name="Test",
+                    last_name="User",
+                    email="test@example.com",
+                    password_hash=generate_password_hash("password123"),
+                    date_of_birth=datetime.now().date() - timedelta(days=365*25),
+                    country="kenya",
+                    language="english",
+                    user_type="individual",
+                    recovery_goals='["Learn coping strategies", "Track progress"]',
+                    created_at=datetime.utcnow(),
+                    sobriety_start_date=datetime.utcnow().date()
+                )
+                db.session.add(test_user)
+                
+                # Create some default goals
+                goals = [
+                    DailyGoal(
+                        user=test_user,
+                        title="Morning Meditation",
+                        category="Wellness",
+                        description="Start each day with 10 minutes of meditation",
+                        status="pending"
+                    ),
+                    DailyGoal(
+                        user=test_user,
+                        title="Exercise",
+                        category="Physical Health",
+                        description="30 minutes of physical activity",
+                        status="pending"
+                    )
+                ]
+                db.session.add_all(goals)
+                
+                # Create some milestones
+                milestones = [
+                    Milestone(
+                        user=test_user,
+                        title="First Week Complete",
+                        description="Successfully completed first week of recovery",
+                        target_date=datetime.utcnow().date() + timedelta(days=7),
+                        status="pending"
+                    ),
+                    Milestone(
+                        user=test_user,
+                        title="One Month Milestone",
+                        description="Reach one month of sobriety",
+                        target_date=datetime.utcnow().date() + timedelta(days=30),
+                        status="pending"
+                    )
+                ]
+                db.session.add_all(milestones)
+                
+                # Commit all changes
+                db.session.commit()
+                print("Initial data loaded successfully!")
         except Exception as e:
-            print(f"Error initializing sample data: {str(e)}")
-            db.session.rollback()
-
-    except Exception as e:
-        print(f"Error initializing database: {str(e)}") # Debug print
-        db.session.rollback()
-        raise
+            print(f"Error initializing database: {str(e)}")
 
 @app.route('/support', methods=['GET'])
 @login_required
