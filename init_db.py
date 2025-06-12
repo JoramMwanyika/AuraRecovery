@@ -2,6 +2,7 @@ from app import app, db, User, DailyGoal, Milestone
 from config import Config
 import os
 from datetime import datetime, timedelta
+from werkzeug.security import generate_password_hash
 
 def init_db():
     with app.app_context():
@@ -10,24 +11,23 @@ def init_db():
         
         # Create all tables
         db.create_all()
+        print("Database tables created successfully!")
         
-        # Check if we need to load initial data
+        # Check if we need to create initial data
         if not User.query.first():
-            print("Loading initial data...")
-            
-            # Create a test user
+            print("Creating initial test user...")
             test_user = User(
                 first_name="Test",
                 last_name="User",
                 email="test@example.com",
-                password_hash=User.generate_password_hash("password123"),
-                date_of_birth=datetime.now().date() - timedelta(days=365*25),
-                country="kenya",
+                password_hash=generate_password_hash("password123"),
+                date_of_birth=datetime(1990, 1, 1),
+                country="US",
                 language="english",
                 user_type="individual",
-                recovery_goals='["Learn coping strategies", "Track progress"]',
+                recovery_goals=["Stay sober", "Improve health"],
                 created_at=datetime.utcnow(),
-                sobriety_start_date=datetime.utcnow().date()
+                sobriety_start_date=datetime.utcnow()
             )
             db.session.add(test_user)
             
@@ -71,7 +71,7 @@ def init_db():
             
             # Commit all changes
             db.session.commit()
-            print("Initial data loaded successfully!")
+            print("Initial test user created successfully!")
         
         print("Database initialized successfully!")
 
