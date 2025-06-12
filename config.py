@@ -18,13 +18,6 @@ class Config:
     else:
         SQLALCHEMY_DATABASE_URI = 'sqlite:///aurarecovery.db'
     
-    # Ensure we're using the correct database name
-    if 'postgresql://' in SQLALCHEMY_DATABASE_URI:
-        # Extract the base URL without the database name
-        base_url = SQLALCHEMY_DATABASE_URI.rsplit('/', 1)[0]
-        # Add the specific database name
-        SQLALCHEMY_DATABASE_URI = f"{base_url}/aurarecovery_db_uhop"
-    
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # Mail settings
