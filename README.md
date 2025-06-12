@@ -11,7 +11,7 @@ AuraRecovery is an AI-powered addiction recovery support platform that provides 
 - Virtual assistance
 - Personalized recovery plans
 
-## Setup Instructions
+## Local Development Setup
 
 1. Clone the repository:
 ```bash
@@ -30,14 +30,15 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-4. Initialize the database:
+4. Create a `.env` file:
 ```bash
-python init_db.py
+cp .env.example .env
+# Edit .env with your configuration
 ```
 
-5. Load educational resources:
+5. Initialize the database:
 ```bash
-python load_resources.py
+python init_db.py
 ```
 
 6. Run the application:
@@ -45,15 +46,42 @@ python load_resources.py
 flask run
 ```
 
+## Railway Deployment
+
+1. Create a Railway account and install the Railway CLI
+
+2. Login to Railway:
+```bash
+railway login
+```
+
+3. Link your project:
+```bash
+railway link
+```
+
+4. Add environment variables in Railway dashboard:
+- Copy all variables from your `.env` file
+- Add `PORT=8000` for Railway
+
+5. Deploy to Railway:
+```bash
+railway up
+```
+
 ## Environment Variables
 
-Create a `.env` file in the root directory with the following variables:
-```
-SECRET_KEY=your-secret-key
-ZOOM_API_KEY=your-zoom-api-key
-ZOOM_API_SECRET=your-zoom-api-secret
-GOOGLE_MEET_API_KEY=your-google-api-key
-```
+Required environment variables:
+- `SECRET_KEY`: Flask secret key
+- `DATABASE_URL`: PostgreSQL database URL (automatically set by Railway)
+- `MAIL_SERVER`: SMTP server for emails
+- `MAIL_PORT`: SMTP port
+- `MAIL_USERNAME`: Email username
+- `MAIL_PASSWORD`: Email password
+- `OPENAI_API_KEY`: OpenAI API key
+- `ZOOM_API_KEY`: Zoom API key
+- `ZOOM_API_SECRET`: Zoom API secret
+- `GOOGLE_MEET_API_KEY`: Google Meet API key
 
 ## Contributing
 
