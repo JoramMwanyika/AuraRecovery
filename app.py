@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for, session, flash
+from flask import Flask, render_template, request, jsonify, redirect, url_for, session, flash, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -14,9 +14,18 @@ from sqlalchemy.orm import joinedload
 import click
 from flask.cli import with_appcontext
 import secrets
+import openai
+from openai import OpenAI
+import whisper
+import tempfile
+from werkzeug.utils import secure_filename
 
 # Import AI services
 from ai_service import AIService
+from gpt_therapist import GPTTherapist
+import whisper
+import tempfile
+from werkzeug.utils import secure_filename
 
 def generate_object_id():
     """Generate a MongoDB-style 24-character ObjectId"""
@@ -25,6 +34,12 @@ def generate_object_id():
 
 app = Flask(__name__)
 app.config.from_object(Config)
+
+# Create upload folder for temporary files
+UPLOAD_FOLDER = os.path.join(app.root_path, 'uploads')
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # Initialize SQLAlchemy with the app
 db = SQLAlchemy(app)
@@ -2248,6 +2263,123 @@ def initialize_database(init_key):
 with app.app_context():
     db.create_all()
     print("Database tables created successfully!")
+
+@app.route('/api/ai/speech-to-text', methods=['POST'])
+@login_required
+def speech_to_text():
+    if 'audio' not in request.files:
+        return jsonify({'error': 'No audio file provided'}), 400
+        
+    audio_file = request.files['audio']
+    
+    try:
+        # Save the audio file temporarily
+        temp_path = os.path.join(app.config['UPLOAD_FOLDER'], 'temp_audio.wav')
+        audio_file.save(temp_path)
+        
+        # Call OpenAI Whisper API
+        with open(temp_path, 'rb') as f:
+            response = requests.post(
+                'https://api.openai.com/v1/audio/transcriptions',
+                headers={
+                    'Authorization': f'Bearer {Config.OPENAI_API_KEY}'
+                },
+                files={
+                    'file': ('audio.wav', f, 'audio/wav')
+                },
+                data={
+                    'model': 'whisper-1'
+                }
+            )
+        
+        # Clean up temporary file
+        os.remove(temp_path)
+        
+        if response.status_code == 200:
+            result = response.json()
+            return jsonify({'text': result['text']})
+        else:
+            return jsonify({'error': 'Failed to transcribe audio'}), 500
+            
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/professional-support')
+@login_required
+def professional_support():
+    # Mock data for demonstration - replace with actual database queries
+    professional = {
+        'name': 'Dr. Sarah Johnson',
+        'first_name': 'Sarah',
+        'last_name': 'Johnson',
+        'specialization': 'Addiction Counselor',
+        'is_online': True
+    }
+    
+    upcoming_sessions = [
+        {
+            'date': datetime.now() + timedelta(days=1),
+            'time': datetime.strptime('10:00', '%H:%M'),
+            'type': 'Video Session'
+        },
+        {
+            'date': datetime.now() + timedelta(days=3),
+            'time': datetime.strptime('14:30', '%H:%M'),
+            'type': 'Audio Session'
+        }
+    ]
+    
+    treatment_goals = [
+        {
+            'description': 'Complete daily mood tracking',
+            'due_date': 'Daily',
+            'completed': True
+        },
+        {
+            'description': 'Practice mindfulness meditation',
+            'due_date': 'Every morning',
+            'completed': False
+        },
+        {
+            'description': 'Attend support group meeting',
+            'due_date': 'Weekly',
+            'completed': False
+        }
+    ]
+    
+    shared_resources = [
+        {
+            'name': 'Recovery Workbook',
+            'icon': 'book'
+        },
+        {
+            'name': 'Meditation Guide',
+            'icon': 'headphones'
+        },
+        {
+            'name': 'Progress Assessment',
+            'icon': 'clipboard'
+        }
+    ]
+    
+    milestones = [
+        {
+            'description': 'Completed initial assessment'
+        },
+        {
+            'description': 'Attended first therapy session'
+        },
+        {
+            'description': 'Started daily journaling'
+        }
+    ]
+    
+    return render_template('professional_support.html',
+                         professional=professional,
+                         upcoming_sessions=upcoming_sessions,
+                         treatment_goals=treatment_goals,
+                         shared_resources=shared_resources,
+                         milestones=milestones)
 
 if __name__ == '__main__':
     print("Running app directly, initializing database...") # Debug print
