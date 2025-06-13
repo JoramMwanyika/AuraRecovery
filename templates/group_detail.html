@@ -37,7 +37,7 @@
                     <i data-lucide="sun" class="w-5 h-5 text-yellow-500 hidden dark:block"></i>
                     <i data-lucide="moon" class="w-5 h-5 text-gray-600 block dark:hidden"></i>
                 </button>
-                <a href="{{ url_for('profile_page') }}" class="flex items-center space-x-2 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-lg transition-colors">
+                <a href="{{ url_for('profile') }}" class="flex items-center space-x-2 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-lg transition-colors">
                     <div class="w-8 h-8 bg-aura-green rounded-full flex items-center justify-center">
                         <span class="text-sm font-bold text-aura-charcoal">{{ current_user.first_name[0] }}{{ current_user.last_name[0] }}</span>
                     </div>

@@ -531,6 +531,20 @@
                 showFlashMessage('An error occurred. Please try again.', 'error');
             }
         });
+
+        // Theme toggle functionality
+        const themeToggle = document.querySelector('.w-10.h-10.rounded-full.bg-gray-100.dark:bg-gray-800.hover:bg-gray-200.dark:hover:bg-gray-700.flex.items-center.justify-center');
+        themeToggle.addEventListener('click', function() {
+            document.body.classList.toggle('dark-mode');
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDarkMode);
+        });
+
+        // Check for saved theme preference
+        const savedTheme = localStorage.getItem('darkMode');
+        if (savedTheme === 'true') {
+            document.body.classList.add('dark-mode');
+        }
     });
 
     // Load user profile data
