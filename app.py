@@ -279,19 +279,48 @@ class Appointment(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     contact = db.relationship('SupportContact', backref='appointments')
 
-class Professional(db.Model):
+class Professional(UserMixin, db.Model):
+    __tablename__ = 'professional'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    role = db.Column(db.String(50), nullable=False)  # 'doctor' or 'therapist'
-    specialization = db.Column(db.String(100))
-    bio = db.Column(db.Text)
-    email = db.Column(db.String(120))
-    phone = db.Column(db.String(30))
-    availability = db.Column(db.String(100))
-    rating = db.Column(db.Float, default=5.0)
-    language = db.Column(db.String(50))
-    gender = db.Column(db.String(20))
-    is_verified = db.Column(db.Boolean, default=False)
+    first_name = db.Column(db.String(100), nullable=False)
+    last_name = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password_hash = db.Column(db.String(200), nullable=False)
+    specialization = db.Column(db.String(100), nullable=False)
+    is_online = db.Column(db.Boolean, default=False)
+    last_active = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+
+class ProfessionalPatient(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    professional_id = db.Column(db.Integer, db.ForeignKey('professional.id'), nullable=False)
+    patient_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    assigned_at = db.Column(db.DateTime, default=datetime.utcnow)
+    status = db.Column(db.String(20), default='active')  # active, completed, terminated
+
+class ProfessionalSession(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    professional_id = db.Column(db.Integer, db.ForeignKey('professional.id'), nullable=False)
+    patient_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    session_date = db.Column(db.DateTime, nullable=False)
+    session_type = db.Column(db.String(50), nullable=False)  # video, audio, in-person
+    status = db.Column(db.String(20), default='scheduled')  # scheduled, completed, cancelled
+    notes = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class ProfessionalResource(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    professional_id = db.Column(db.Integer, db.ForeignKey('professional.id'), nullable=False)
+    title = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text)
+    resource_type = db.Column(db.String(50), nullable=False)
+    file_path = db.Column(db.String(500))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Session(db.Model):
@@ -358,7 +387,12 @@ def create_default_admins():
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    # Try to load as a regular user first
+    user = User.query.get(int(user_id))
+    if user:
+        return user
+    # If not found, try to load as a professional
+    return Professional.query.get(int(user_id))
 
 # Helper Functions (keeping existing ones and adding new AI-related ones)
 def calculate_sobriety_days(user):
@@ -994,7 +1028,7 @@ def get_started():
     if request.method == 'POST':
         try:
             data = request.get_json()
-            print("Received registration data:", data)  # Debug log
+            # print("Received registration data:", data)  # Debug log (removed for privacy)
             
             # Validate required fields
             required_fields = ['firstName', 'lastName', 'email', 'password', 'confirmPassword']
@@ -1055,13 +1089,13 @@ def get_started():
             
             db.session.add(user)
             db.session.commit()
-            print(f"User created successfully: {user.email}")  # Debug log
+            # print(f"User created successfully: {user.email}")  # Debug log (removed for privacy)
             
             # Create default goals and milestones
             create_default_goals(user)
             create_default_milestones(user)
             db.session.commit()
-            print("Default goals and milestones created")  # Debug log
+            # print("Default goals and milestones created")  # Debug log (removed for privacy)
             
             # Log the user in
             login_user(user)
@@ -1077,17 +1111,17 @@ def get_started():
             
         except ValueError as ve:
             db.session.rollback()
-            print(f"Validation error: {str(ve)}")  # Debug log
+            # print(f"Validation error: {str(ve)}")  # Debug log (removed for privacy)
             return jsonify({
                 'success': False,
-                'message': f'Invalid date format: {str(ve)}. Please use YYYY-MM-DD format.' # More specific error message
+                'message': f'Invalid date format: {str(ve)}. Please use YYYY-MM-DD format.'
             }), 400
         except Exception as e:
             db.session.rollback()
-            print(f"Registration error: {str(e)}")  # Debug log
+            # print(f"Registration error: {str(e)}")  # Debug log (removed for privacy)
             return jsonify({
                 'success': False,
-                'message': f'An unexpected error occurred during registration: {str(e)}' # More specific error message
+                'message': f'An unexpected error occurred during registration: {str(e)}'
             }), 500
     
     return render_template('get_started.html')
@@ -1111,20 +1145,20 @@ def check_email():
 @login_required
 def profile():
     if request.method == 'GET':
-        return jsonify({
-            'firstName': current_user.first_name,
-            'lastName': current_user.last_name,
-            'email': current_user.email,
-            'dateOfBirth': current_user.date_of_birth.isoformat() if current_user.date_of_birth else None,
-            'country': current_user.country,
-            'language': current_user.language,
-            'userType': current_user.user_type,
-            'recoveryGoals': json.loads(current_user.recovery_goals) if current_user.recovery_goals else []
-        })
-    
+        if request.headers.get('Accept') == 'application/json':
+            return jsonify({
+                'firstName': current_user.first_name,
+                'lastName': current_user.last_name,
+                'email': current_user.email,
+                'dateOfBirth': current_user.date_of_birth.isoformat() if current_user.date_of_birth else None,
+                'country': current_user.country,
+                'language': current_user.language,
+                'userType': current_user.user_type,
+                'recoveryGoals': json.loads(current_user.recovery_goals) if current_user.recovery_goals else []
+            })
+        return render_template('profile.html')
     elif request.method == 'PUT':
         data = request.get_json()
-        
         # Update user information
         if 'firstName' in data:
             current_user.first_name = data['firstName']
@@ -1139,10 +1173,14 @@ def profile():
         if 'userType' in data:
             current_user.user_type = data['userType']
         if 'recoveryGoals' in data:
-            current_user.recovery_goals = json.dumps(data['recoveryGoals'])
-        
+            current_user.recovery_goals = json.dumps([g.strip() for g in data['recoveryGoals'].split(',')])
+        # Password change
+        if data.get('currentPassword') and data.get('newPassword'):
+            from werkzeug.security import check_password_hash, generate_password_hash
+            if not check_password_hash(current_user.password_hash, data['currentPassword']):
+                return jsonify({'success': False, 'message': 'Current password is incorrect.'}), 400
+            current_user.password_hash = generate_password_hash(data['newPassword'])
         db.session.commit()
-        
         return jsonify({'success': True, 'message': 'Profile updated successfully'})
 
 @app.route('/progress')
@@ -1679,11 +1717,11 @@ def add_goal():
     
     return jsonify({'success': True, 'message': 'Goal added successfully'})
 
-@app.route('/logout')
+@app.route('/logout', methods=['POST'])
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('index'))
+    return redirect(url_for('login'))
 
 @app.route('/api/support-groups', methods=['POST'])
 @login_required
@@ -1721,37 +1759,6 @@ def create_support_group():
     db.session.commit()
     
     return jsonify({'success': True, 'group_id': group.id})
-
-@app.route('/profile', methods=['GET'])
-@login_required
-def profile_page():
-    return render_template('profile.html')
-
-@app.route('/api/change-password', methods=['POST'])
-@login_required
-def change_password():
-    data = request.get_json()
-    current_password = data.get('currentPassword')
-    new_password = data.get('newPassword')
-    
-    # Validate input
-    if not current_password or not new_password:
-        return jsonify({'success': False, 'message': 'Both current and new password are required'})
-    
-    # Check if current password is correct
-    if not check_password_hash(current_user.password_hash, current_password):
-        return jsonify({'success': False, 'message': 'Current password is incorrect'})
-    
-    # Validate new password
-    if len(new_password) < 8:
-        return jsonify({'success': False, 'message': 'Password must be at least 8 characters long'})
-    
-    # Update password
-    current_user.password_hash = generate_password_hash(new_password)
-    db.session.commit()
-    
-    return jsonify({'success': True, 'message': 'Password updated successfully'})
-
 
 # NEW ROUTE: Group Management Dashboard
 @app.route('/manage-group/<int:group_id>')
@@ -2380,6 +2387,141 @@ def professional_support():
                          treatment_goals=treatment_goals,
                          shared_resources=shared_resources,
                          milestones=milestones)
+
+@app.route('/professional-portal')
+@login_required
+def professional_portal():
+    if not isinstance(current_user, Professional):
+        flash('Access denied. This page is for professionals only.', 'error')
+        return redirect(url_for('index'))
+
+    # Get assigned patients
+    assigned_patients = ProfessionalPatient.query.filter_by(
+        professional_id=current_user.id,
+        status='active'
+    ).all()
+    
+    patients = []
+    for assignment in assigned_patients:
+        patient = User.query.get(assignment.patient_id)
+        if patient:
+            patients.append({
+                'first_name': patient.first_name,
+                'last_name': patient.last_name,
+                'last_active': patient.last_active,
+                'next_session': get_next_session(patient.id)
+            })
+
+    # Get upcoming sessions
+    upcoming_sessions = ProfessionalSession.query.filter_by(
+        professional_id=current_user.id,
+        status='scheduled'
+    ).filter(
+        ProfessionalSession.session_date >= datetime.now()
+    ).order_by(ProfessionalSession.session_date).all()
+
+    # Get treatment plans
+    treatment_plans = []
+    for patient in patients:
+        plan = get_treatment_plan(patient['id'])
+        if plan:
+            treatment_plans.append(plan)
+
+    # Get shared resources
+    shared_resources = ProfessionalResource.query.filter_by(
+        professional_id=current_user.id
+    ).all()
+
+    # Get progress reports
+    progress_reports = []
+    for patient in patients:
+        reports = get_progress_reports(patient['id'])
+        progress_reports.extend(reports)
+
+    return render_template('professional_portal.html',
+                         patients=patients,
+                         upcoming_sessions=upcoming_sessions,
+                         treatment_plans=treatment_plans,
+                         shared_resources=shared_resources,
+                         progress_reports=progress_reports)
+
+def create_default_professionals():
+    professionals = [
+        {
+            'first_name': 'Sarah',
+            'last_name': 'Johnson',
+            'email': 'sarah.johnson@aurarecovery.com',
+            'specialization': 'Addiction Counselor',
+            'password': 'Aurarecovery123!'
+        },
+        {
+            'first_name': 'Michael',
+            'last_name': 'Chen',
+            'email': 'michael.chen@aurarecovery.com',
+            'specialization': 'Clinical Psychologist',
+            'password': 'Aurarecovery123!'
+        }
+    ]
+
+    for prof_data in professionals:
+        existing = Professional.query.filter_by(email=prof_data['email']).first()
+        if not existing:
+            professional = Professional(
+                first_name=prof_data['first_name'],
+                last_name=prof_data['last_name'],
+                email=prof_data['email'],
+                specialization=prof_data['specialization']
+            )
+            professional.set_password(prof_data['password'])
+            db.session.add(professional)
+    
+    db.session.commit()
+    print("Default professionals created successfully!")
+
+# Helper functions
+def get_next_session(patient_id):
+    session = ProfessionalSession.query.filter_by(
+        patient_id=patient_id,
+        status='scheduled'
+    ).filter(
+        ProfessionalSession.session_date >= datetime.now()
+    ).order_by(ProfessionalSession.session_date).first()
+    
+    return session.session_date if session else None
+
+def get_treatment_plan(patient_id):
+    # Implement treatment plan retrieval logic
+    return None
+
+def get_progress_reports(patient_id):
+    # Implement progress report retrieval logic
+    return []
+
+# Add this to your initialization code
+with app.app_context():
+    create_default_professionals()
+
+@app.route('/professional-login', methods=['GET', 'POST'])
+def professional_login():
+    if request.method == 'POST':
+        data = request.get_json()
+        email = data.get('email')
+        password = data.get('password')
+        remember = data.get('remember', False)
+        
+        # Validate input
+        if not email or not password:
+            return jsonify({'success': False, 'message': 'Email and password are required'})
+        
+        professional = Professional.query.filter_by(email=email).first()
+        
+        if professional and check_password_hash(professional.password_hash, password):
+            login_user(professional, remember=remember)
+            return jsonify({'success': True, 'redirect': url_for('professional_portal')})
+        else:
+            return jsonify({'success': False, 'message': 'Invalid email or password'})
+    
+    return render_template('professional_login.html')
 
 if __name__ == '__main__':
     print("Running app directly, initializing database...") # Debug print

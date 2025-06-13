@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+
+{% block title %}Professional Portal - AuraRecovery{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-aura-gray dark:bg-gray-900 transition-colors duration-300">
+    {% include 'includes/navbar.html' %}
+
+    <div class="container mx-auto px-4 py-8">
+        <!-- Page Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-aura-charcoal dark:text-white mb-2">Professional Portal</h1>
+            <p class="text-gray-600 dark:text-gray-300">Manage your patients and provide professional support</p>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Column - Patient Overview & Chat -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Assigned Patients Overview -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                    <h2 class="text-xl font-bold text-aura-charcoal dark:text-white mb-4">My Patients</h2>
+                    <div class="space-y-4">
+                        {% for patient in patients %}
+                        <div class="flex items-start space-x-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                            <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-blue-500 rounded-full flex items-center justify-center text-white text-lg font-bold">
+                                {{ patient.first_name[0] }}{{ patient.last_name[0] }}
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <h3 class="text-lg font-semibold text-aura-charcoal dark:text-white">{{ patient.first_name }} {{ patient.last_name }}</h3>
+                                        <p class="text-sm text-gray-600 dark:text-gray-300">Last active: {{ patient.last_active }}</p>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <button class="bg-aura-blue hover:bg-aura-blue-dark text-white px-3 py-1.5 rounded-lg transition-colors text-sm">
+                                            <i data-lucide="message-circle" class="w-4 h-4 mr-1 inline"></i>
+                                            Message
+                                        </button>
+                                        <button class="bg-gray-100 hover:bg-gray-200 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-300 px-3 py-1.5 rounded-lg transition-colors text-sm">
+                                            <i data-lucide="calendar" class="w-4 h-4 mr-1 inline"></i>
+                                            Schedule
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="mt-2 flex items-center space-x-2">
+                                    <span class="text-sm text-gray-600 dark:text-gray-300">Next Session:</span>
+                                    <span class="text-sm font-medium text-aura-charcoal dark:text-white">{{ patient.next_session }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Secure Chat -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+                    <div class="bg-gradient-to-r from-purple-500 to-blue-600 p-4 text-white">
+                        <h3 class="text-lg font-semibold">Secure Chat</h3>
+                        <p class="text-sm text-purple-100">End-to-end encrypted messaging</p>
+                    </div>
+                    <div class="h-96 overflow-y-auto p-4 space-y-4">
+                        <!-- Chat messages will be loaded here -->
+                    </div>
+                    <div class="p-4 border-t border-gray-200 dark:border-gray-700">
+                        <div class="flex items-end space-x-3">
+                            <div class="flex-1">
+                                <textarea
+                                    placeholder="Type your message..."
+                                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 bg-white dark:bg-gray-700 text-aura-charcoal dark:text-white resize-none"
+                                    rows="2"
+                                ></textarea>
+                                <div class="flex justify-between items-center mt-2">
+                                    <div class="flex items-center space-x-2">
+                                        <button class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
+                                            <i data-lucide="paperclip" class="w-5 h-5"></i>
+                                        </button>
+                                    </div>
+                                    <button class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg transition-colors">
+                                        Send
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column - Appointments & Resources -->
+            <div class="space-y-6">
+                <!-- Upcoming Appointments -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-semibold text-aura-charcoal dark:text-white mb-4">Upcoming Sessions</h3>
+                    <div class="space-y-4">
+                        {% for session in upcoming_sessions %}
+                        <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm font-medium text-gray-600 dark:text-gray-400">
+                                    {{ session.date.strftime('%a, %b %d') }}
+                                </span>
+                                <span class="text-sm font-medium text-gray-600 dark:text-gray-400">
+                                    {{ session.time.strftime('%I:%M %p') }}
+                                </span>
+                            </div>
+                            <p class="text-aura-charcoal dark:text-white font-medium mb-2">{{ session.patient_name }} - {{ session.type }}</p>
+                            <div class="flex items-center space-x-2">
+                                <button class="flex-1 bg-aura-blue hover:bg-aura-blue-dark text-white px-3 py-1.5 rounded-lg transition-colors text-sm">
+                                    Join Session
+                                </button>
+                                <button class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
+                                    <i data-lucide="more-vertical" class="w-5 h-5"></i>
+                                </button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Treatment Plans -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-semibold text-aura-charcoal dark:text-white mb-4">Treatment Plans</h3>
+                    <div class="space-y-4">
+                        {% for plan in treatment_plans %}
+                        <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="font-medium text-aura-charcoal dark:text-white">{{ plan.patient_name }}</h4>
+                                <span class="text-sm text-gray-600 dark:text-gray-400">{{ plan.last_updated }}</span>
+                            </div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">{{ plan.description }}</p>
+                            <div class="flex items-center space-x-2">
+                                <button class="bg-aura-blue hover:bg-aura-blue-dark text-white px-3 py-1.5 rounded-lg transition-colors text-sm">
+                                    Edit Plan
+                                </button>
+                                <button class="bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 px-3 py-1.5 rounded-lg transition-colors text-sm">
+                                    View Progress
+                                </button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Shared Resources -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-aura-charcoal dark:text-white">Shared Resources</h3>
+                        <button class="bg-aura-blue hover:bg-aura-blue-dark text-white px-3 py-1.5 rounded-lg transition-colors text-sm">
+                            <i data-lucide="plus" class="w-4 h-4 mr-1 inline"></i>
+                            Add Resource
+                        </button>
+                    </div>
+                    <div class="space-y-3">
+                        {% for resource in shared_resources %}
+                        <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                            <div class="flex items-center space-x-3">
+                                <i data-lucide="{{ resource.icon }}" class="w-5 h-5 text-gray-500 dark:text-gray-400"></i>
+                                <span class="text-aura-charcoal dark:text-white">{{ resource.name }}</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
+                                    <i data-lucide="edit" class="w-5 h-5"></i>
+                                </button>
+                                <button class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
+                                    <i data-lucide="trash-2" class="w-5 h-5"></i>
+                                </button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Progress Reports -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-semibold text-aura-charcoal dark:text-white mb-4">Progress Reports</h3>
+                    <div class="space-y-4">
+                        {% for report in progress_reports %}
+                        <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="font-medium text-aura-charcoal dark:text-white">{{ report.patient_name }}</h4>
+                                <span class="text-sm text-gray-600 dark:text-gray-400">{{ report.date }}</span>
+                            </div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">{{ report.summary }}</p>
+                            <div class="flex items-center space-x-2">
+                                <button class="bg-aura-blue hover:bg-aura-blue-dark text-white px-3 py-1.5 rounded-lg transition-colors text-sm">
+                                    View Details
+                                </button>
+                                <button class="bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 px-3 py-1.5 rounded-lg transition-colors text-sm">
+                                    Add Note
+                                </button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize any necessary JavaScript functionality
+    });
+</script>
+{% endblock %} 
