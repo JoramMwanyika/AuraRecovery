@@ -29,7 +29,7 @@ class Config:
     
     # AI settings
     OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
-    OPENAI_ROUTER_API_KEY = os.environ.get('OPENAI_ROUTER_API_KEY', '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')
+    OPENAI_ROUTER_API_KEY = os.environ.get('OPENAI_ROUTER_API_KEY', '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')
     
     # Zoom settings
     ZOOM_API_KEY = os.environ.get('ZOOM_API_KEY')
